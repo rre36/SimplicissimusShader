@@ -7,6 +7,7 @@ void main() {
 	gl_Position = ftransform();
 	
 	color = gl_Color;
+	color.rgb 	= pow(color.rgb, vec3(2.2));
 	
 	texcoord = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 

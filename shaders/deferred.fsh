@@ -96,7 +96,7 @@ void main() {
 
 	//sample necessary scene textures
 	sceneColor 	= texture2D(colortex0, texcoord).rgb;
-	sceneColor 	= pow(sceneColor, vec3(2.2)); 	//linearize scene color
+	//sceneColor 	= pow(sceneColor, vec3(2.2)); 	//linearize scene color
 	sceneDepth 	= texture2D(depthtex0, texcoord).x;
 	sceneNormal	= normalize(texture2D(colortex1, texcoord).xyz*2.0-1.0);
 	sceneLightmap = texture2D(colortex2, texcoord).xy;
@@ -111,7 +111,7 @@ void main() {
 	//variables for shadow calculation
 	float shadow 		= 1.0;
 	float comparedepth 	= 0.0;
-
+/*
 	//check if it is even terrain and then do shading
 	if (isTerrain) {
 		float diffuse 		= getDiffuse(sceneNormal, lightVec); 	//get diffuse shading
@@ -126,7 +126,7 @@ void main() {
 			lightcolor 	    = max(lightcolor, torchlightColor*sceneLightmap.x);
 
 		sceneColor 		   *= lightcolor; 		//apply lighting to diffuse
-	}
+	}*/
 
 
 	//write to framebuffer attachment
