@@ -1,5 +1,7 @@
 #version 120
 
+#extension GL_EXT_gpu_shader4 : enable
+
 #define setBitdepth 8       //[6 8 10 12]
 
 #include "/lib/common.glsl"

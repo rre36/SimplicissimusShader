@@ -1,13 +1,11 @@
 #version 120
 #include "/lib/math.glsl"
 
-#extension GL_EXT_gpu_shader4 : enable
-
 varying vec4 tint;
 
 varying vec3 vpos;
 
-varying flat int star;
+varying float star;
 
 varying vec3 svec;
 varying vec3 mvec;
@@ -67,5 +65,5 @@ void main() {
 
 	float isStar = float(gl_Color.r == gl_Color.g && gl_Color.g == gl_Color.b && gl_Color.r > 0.0);
 
-	star = int(isStar);
+	star = isStar;
 }

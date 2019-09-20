@@ -2,7 +2,7 @@
 #include "/lib/math.glsl"
 #include "/lib/common.glsl"
 
-varying flat int star;
+varying float star;
 
 varying float timeNoon;
 varying float timeNight;

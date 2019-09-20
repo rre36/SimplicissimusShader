@@ -4,7 +4,7 @@
 uniform sampler2D tex;
 uniform sampler2D lightmap;
 
-varying flat int noDiffuse;
+varying float noDiffuse;
 
 varying float timeSunrise;
 varying float timeSunset;
@@ -43,7 +43,7 @@ float getShadow(sampler2DShadow shadowtex, in vec3 shadowpos) {
 
 float getDiffuse(vec3 normal, vec3 lightvec) {
 	float lambert 	= dot(normal, lightvec);
-		lambert 	= max(lambert, float(noDiffuse));
+		lambert 	= max(lambert, max(noDiffuse, 0.0));
 	return lambert;
 }
 

@@ -1,6 +1,6 @@
 #include "/lib/math.glsl"
 
-varying flat int noDiffuse;
+varying float noDiffuse;
 
 varying vec2 coord;
 varying vec2 lmap;
@@ -115,11 +115,11 @@ void main() {
 		mc_Entity.x == 241.0 ||
 		mc_Entity.x == 600.0 ||
 		mc_Entity.x == 601.0) {
-			noDiffuse = 1;
+			noDiffuse = 1.0;
 		} else {
-        	noDiffuse = 0;
+        	noDiffuse = 0.0;
         }
     #else
-        noDiffuse = 0;
+        noDiffuse = 0.0;
     #endif
 }
