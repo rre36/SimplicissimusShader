@@ -10,17 +10,22 @@ varying flat vec3 normal;
 varying vec3 vpos;
 varying vec3 wpos;
 varying vec3 spos;
+varying vec3 cpos;
+varying flat vec3 svec;
 varying flat vec3 lvec;
 
 varying flat vec3 sunlightColor;
 varying flat vec3 skylightColor;
 varying flat vec3 torchlightColor;
+varying flat vec3 fogcol;
 
 varying vec4 tint;
 
 attribute vec4 mc_Entity;
 
 uniform vec3 shadowLightPosition;
+uniform vec3 fogColor;
+uniform vec3 sunPosition;
 
 vec4 position;
 
@@ -52,6 +57,7 @@ void main() {
     vpos 		= position.xyz;
 
     position 	= gbufferModelViewInverse*position;
+	cpos 		= position.xyz;
     position.xyz += cameraPosition.xyz;
 	wpos = position.xyz;
 
@@ -62,8 +68,9 @@ void main() {
 
 	normal 	= normalize(gl_NormalMatrix*gl_Normal);
 	lvec	= normalize(shadowLightPosition);
+	svec 	= normalize(sunPosition);
 
-	spos 		= getShadowCoordinate(vpos, 0.06);
+	spos 	= getShadowCoordinate(vpos, 0.06);
 
 	daytime();
 
@@ -83,6 +90,13 @@ void main() {
 
     skylightColor = timeSunrise*skylightSunrise + timeNoon*skylightNoon + timeSunset*skylightSunset + timeNight*skylightNight;
 	skylightColor *= 0.2;
+
+	vec3 fsunrise 	= vec3(1.0, 0.6, 0.5)*2.0;
+	vec3 fnoon 		= pow(fogColor, vec3(2.2))*3.0;
+	vec3 fsunset 	= vec3(0.9, 0.6, 0.8);
+	vec3 fnight 	= vec3(0.25, 0.3, 1.0)*0.1;
+
+	fogcol 		= fsunrise*timeSunrise + fnoon*timeNoon + fsunset*timeSunset + fnight*timeNight;
 
 	torchlightColor = vec3(1.0, 0.92, 0.9);
 

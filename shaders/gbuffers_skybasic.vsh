@@ -5,6 +5,8 @@ varying vec4 tint;
 
 varying vec3 vpos;
 
+varying flat int star;
+
 varying flat vec3 svec;
 varying flat vec3 mvec;
 varying flat vec3 uvec;
@@ -60,4 +62,8 @@ void main() {
 
     suncol = timeSunrise*sunlightSunrise + timeNoon*sunlightNoon + timeSunset*sunlightSunset + timeNight*sunlightNight;
 	suncol *= 2.0;
+
+	float isStar = float(gl_Color.r == gl_Color.g && gl_Color.g == gl_Color.b && gl_Color.r > 0.0);
+
+	star = int(isStar);
 }

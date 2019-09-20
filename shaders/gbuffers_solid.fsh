@@ -6,6 +6,8 @@ uniform sampler2D lightmap;
 
 varying flat int noDiffuse;
 
+varying flat float timeSunrise;
+varying flat float timeSunset;
 varying flat float timeLightTransition;
 
 varying vec2 coord;
@@ -15,11 +17,14 @@ varying flat vec3 normal;
 varying vec3 vpos;
 varying vec3 wpos;
 varying vec3 spos;
+varying vec3 cpos;
+varying flat vec3 svec;
 varying flat vec3 lvec;
 
 varying flat vec3 sunlightColor;
 varying flat vec3 skylightColor;
 varying flat vec3 torchlightColor;
+varying flat vec3 fogcol;
 
 varying vec4 tint;
 
@@ -27,6 +32,8 @@ const bool shadowHardwareFiltering = true;
 uniform sampler2DShadow shadowtex0;
 uniform sampler2DShadow shadowtex1;
 uniform sampler2DShadow shadowcolor0;
+
+uniform float far;
 
 float getShadow(sampler2DShadow shadowtex, in vec3 shadowpos) {
 	float shadow 	= shadow2D(shadowtex, shadowpos).x;
@@ -40,7 +47,23 @@ float getDiffuse(vec3 normal, vec3 lightvec) {
 	return lambert;
 }
 
-#include "/lib/fog.glsl"
+vec3 getFog(vec3 color){
+	vec3 nfrag  = -normalize(vpos);
+	vec3 sgvec  = normalize(svec+nfrag);
+
+	float sgrad = 1.0-dot(sgvec, nfrag);
+	float sglow = linStep(sgrad, 0.1, 0.99);
+        sglow   = pow4(sglow);
+		sglow  *= timeSunrise+timeSunset;
+
+	float dist 	= length(cpos)/far;
+		dist 	= max((dist-0.2)*1.25, 0.0);
+	float alpha = 1.0-exp2(-dist);
+
+	color 	= mix(color, fogcol*finv(sglow)+sunlightColor*sglow*5.0, saturate(pow2(alpha)));
+
+	return color;
+}
 
 void main() {
 	vec4 scenecol 	= texture2D(tex, coord)*vec4(tint.rgb, 1.0);
@@ -87,7 +110,7 @@ void main() {
     scenecol.rgb   *= ao;
     #endif
 
-    scenecol.rgb    = applyFog(scenecol.rgb);
+    scenecol.rgb    = getFog(scenecol.rgb);
 
 	scenecol.rgb 	= compressHDR(scenecol.rgb);
 

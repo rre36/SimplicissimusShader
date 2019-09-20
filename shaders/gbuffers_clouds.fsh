@@ -63,7 +63,7 @@ vec3 getSky() {
 
 vec3 getFog(vec3 color){
 	float dist 	= length(cpos)/far;
-		dist 	= linStep(dist, 0.5, 1.0);
+		dist 	= max((dist-0.5)*2.0, 0.0);
 	float alpha = 1.0-exp2(-dist*2.0);
 
 	color 	= mix(color, getSky(), saturate(pow2(alpha)));

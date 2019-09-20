@@ -2,7 +2,10 @@
 #include "/lib/math.glsl"
 #include "/lib/common.glsl"
 
+varying flat int star;
+
 varying flat float timeNoon;
+varying flat float timeNight;
 varying flat float timeMoon;
 
 varying vec4 tint;
@@ -50,6 +53,7 @@ vec3 getSky() {
         sky    *= pow3(1.0-saturate(shglow));
         sky    += suncol*shglow*6.0;
         sky    += suncol*sglow;
+        sky    += float(star)*timeNight*pow4(finv(max(hfade, horizon)));
 
     return sky;
 }
