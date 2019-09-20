@@ -11,15 +11,15 @@ varying flat float timeLightTransition;
 varying vec2 coord;
 varying vec2 lmap;
 
-varying vec3 normal;
+varying flat vec3 normal;
 varying vec3 vpos;
 varying vec3 wpos;
 varying vec3 spos;
-varying vec3 lvec;
+varying flat vec3 lvec;
 
-varying vec3 sunlightColor;
-varying vec3 skylightColor;
-varying vec3 torchlightColor;
+varying flat vec3 sunlightColor;
+varying flat vec3 skylightColor;
+varying flat vec3 torchlightColor;
 
 varying vec4 tint;
 
@@ -44,6 +44,11 @@ float getDiffuse(vec3 normal, vec3 lightvec) {
 
 void main() {
 	vec4 scenecol 	= texture2D(tex, coord)*vec4(tint.rgb, 1.0);
+
+	#ifndef translucency
+		if(scenecol.a < 0.1) discard;
+	#endif
+
 		scenecol.rgb = pow(scenecol.rgb, vec3(2.2));
 
     #ifdef isParticle

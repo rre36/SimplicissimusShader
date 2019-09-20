@@ -4,21 +4,22 @@
 
 varying flat float timeNoon;
 varying flat float timeMoon;
+varying flat float timeNight;
 
 varying vec4 tint;
 varying vec2 coord;
 
 varying vec3 vpos;
 varying vec3 cpos;
-varying vec3 normal;
+varying flat vec3 normal;
 
-varying vec3 svec;
-varying vec3 mvec;
-varying vec3 uvec;
+varying flat vec3 svec;
+varying flat vec3 mvec;
+varying flat vec3 uvec;
 
-varying vec3 skycol;
-varying vec3 suncol;
-varying vec3 fogcol;
+varying flat vec3 skycol;
+varying flat vec3 suncol;
+varying flat vec3 fogcol;
 
 uniform float far;
 uniform sampler2D tex;
@@ -63,17 +64,38 @@ vec3 getSky() {
 vec3 getFog(vec3 color){
 	float dist 	= length(cpos)/far;
 		dist 	= linStep(dist, 0.5, 1.0);
-	float alpha = 1.0-exp2(-dist*1.75);
+	float alpha = 1.0-exp2(-dist*2.0);
 
-	color 	= mix(color, getSky(), saturate(alpha));
+	color 	= mix(color, getSky(), saturate(pow2(alpha)));
 
 	return color;
+}
+
+vec3 cloudShading(vec3 color) {
+	if (timeNight<1.0) {
+		float lambert 	= dot(normal, svec);
+		float vdotl 	= dot(normalize(vpos), svec)*0.5+0.5;
+		float phase1 	= pow6(saturate(vdotl))*1.2;
+		float phase2 	= pow3(saturate(-vdotl));
+		float phase 	= mix(phase1, phase2, 0.4)+0.5;
+
+		vec3 color0 	= saturate(lambert*0.75+0.25)*suncol*0.5*phase;
+		color0  += suncol*(phase1*0.2+0.02);
+
+		float lambertu 	= dot(normal, uvec);
+
+		color0  += (skycol+fogcol*0.6)*(sqrt(saturate(lambertu))*0.85+0.15);
+
+		return mix(color0, color, timeNight);
+	} else {
+		return color;
+	}
 }
 
 void main() {
 	vec4 scenecol 	= texture2D(tex, coord)*tint;
     scenecol.rgb = pow(scenecol.rgb, vec3(2.2))*2.0;
-
+	scenecol.rgb = cloudShading(scenecol.rgb);
 	scenecol.rgb = getFog(scenecol.rgb);
 
 	scenecol.rgb 	= compressHDR(scenecol.rgb);

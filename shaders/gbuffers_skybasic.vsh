@@ -5,13 +5,13 @@ varying vec4 tint;
 
 varying vec3 vpos;
 
-varying vec3 svec;
-varying vec3 mvec;
-varying vec3 uvec;
+varying flat vec3 svec;
+varying flat vec3 mvec;
+varying flat vec3 uvec;
 
-varying vec3 skycol;
-varying vec3 suncol;
-varying vec3 fogcol;
+varying flat vec3 skycol;
+varying flat vec3 suncol;
+varying flat vec3 fogcol;
 
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
@@ -49,7 +49,7 @@ void main() {
 	vec3 fsunrise 	= vec3(1.0, 0.6, 0.5)*2.0;
 	vec3 fnoon 		= pow(fogColor, vec3(2.2))*3.0;
 	vec3 fsunset 	= vec3(0.9, 0.6, 0.8);
-	vec3 fnight 	= vec3(0.33, 0.66, 1.0)*0.2;
+	vec3 fnight 	= vec3(0.25, 0.3, 1.0)*0.1;
 
 	fogcol 		= fsunrise*timeSunrise + fnoon*timeNoon + fsunset*timeSunset + fnight*timeNight;
 
