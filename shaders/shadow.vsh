@@ -1,8 +1,8 @@
 #version 120
 
-varying vec2 texcoord;
+varying vec2 coord;
 
-varying vec4 color;
+varying vec4 tint;
 
 #include "/lib/shadowmap.glsl"
 
@@ -14,6 +14,6 @@ void main() {
 
     gl_Position     = position;
 
-    texcoord        = (gl_TextureMatrix[0]*gl_MultiTexCoord0).xy;
-    color           = gl_Color;
+    coord           = (gl_TextureMatrix[0]*gl_MultiTexCoord0).xy;
+    tint           = gl_Color;
 }

@@ -40,6 +40,8 @@ vec3 getShadowCoordinate(vec3 vpos, float bias) {
 	return position*0.5+0.5;
 }
 
+#include "lib/time.glsl"
+
 void main() {
 	//essential vertex setup
 	tint 	= gl_Color;
@@ -63,11 +65,28 @@ void main() {
 
 	spos 		= getShadowCoordinate(vpos, 0.06);
 
-	//colors
-    sunlightColor = vec3(1.0, 1.0, 1.0);
-	skylightColor = vec3(0.1, 0.1, 0.1);
-	torchlightColor = vec3(1.0, 0.3, 0.0);
+	daytime();
 
+	//colors
+	vec3 sunlightSunrise 	= vec3(1.0, 0.33, 0.03);
+	vec3 sunlightNoon 		= vec3(1.0, 1.0, 1.0);
+	vec3 sunlightSunset 	= vec3(1.0, 0.3, 0.02);
+	vec3 sunlightNight 		= vec3(0.5, 0.7, 1.0)*0.2;
+
+    sunlightColor = timeSunrise*sunlightSunrise + timeNoon*sunlightNoon + timeSunset*sunlightSunset + timeNight*sunlightNight;
+	sunlightColor *= 2.0;
+
+	vec3 skylightSunrise 	= vec3(0.5, 0.75, 1.0)*0.6;
+	vec3 skylightNoon 		= vec3(1.0, 1.0, 1.0);
+	vec3 skylightSunset 	= vec3(0.5, 0.75, 1.0)*0.6;
+	vec3 skylightNight 		= vec3(0.25, 0.6, 1.0)*0.3;
+
+    skylightColor = timeSunrise*skylightSunrise + timeNoon*skylightNoon + timeSunset*skylightSunset + timeNight*skylightNight;
+	skylightColor *= 0.2;
+
+	torchlightColor = vec3(1.0, 0.92, 0.9);
+
+    #ifdef terrain
 	if (mc_Entity.x == 6.0 ||
 		mc_Entity.x == 18.0 ||
 		mc_Entity.x == 31.0 ||
@@ -78,10 +97,15 @@ void main() {
 		mc_Entity.x == 142.0 ||
 		mc_Entity.x == 175.0 ||
 		mc_Entity.x == 207.0 ||
+		mc_Entity.x == 240.0 ||
+		mc_Entity.x == 241.0 ||
 		mc_Entity.x == 600.0 ||
 		mc_Entity.x == 601.0) {
 			noDiffuse = 1;
 		} else {
-            noDiffuse = 0;
+        	noDiffuse = 0;
         }
+    #else
+        noDiffuse = 0;
+    #endif
 }

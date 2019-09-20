@@ -2,10 +2,12 @@
 
 uniform sampler2D tex;
 
-varying vec2 texcoord;
+varying vec2 coord;
 
-varying vec4 color;
+varying vec4 tint;
 
 void main() {
-    gl_FragColor    = texture2D(tex, texcoord)*color;
+    vec4 scenecol   = texture2D(tex, coord)*vec4(tint.rgb, 1.0);
+
+    gl_FragData[0]  = scenecol;
 }
