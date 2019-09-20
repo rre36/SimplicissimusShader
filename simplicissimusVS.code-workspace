@@ -5,7 +5,6 @@
 		}
 	],
 	"settings": {
-        "editor.useTabStops": false,
-        "editor.detectIndentation": false
+		"editor.acceptSuggestionOnEnter": "off"
 	}
 }
