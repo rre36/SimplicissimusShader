@@ -1,7 +1,5 @@
 #version 120
 
-#extension GL_EXT_gpu_shader4 : enable
-
 #define setBitdepth 8       //[6 8 10 12]
 
 #include "/lib/common.glsl"
@@ -57,9 +55,9 @@ vec3 imageDither(vec3 color) {
         colDither *= bits;
         colDither += bayer16(gl_FragCoord.xy)-0.5;
 
-        float colR = round(colDither.r);
-        float colG = round(colDither.g);
-        float colB = round(colDither.b);
+        float colR = (colDither.r);
+        float colG = (colDither.g);
+        float colB = (colDither.b);
 
     return vec3(colR, colG, colB)/bits;
 }
