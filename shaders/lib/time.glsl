@@ -1,10 +1,10 @@
-varying flat float timeSunrise;
-varying flat float timeNoon;
-varying flat float timeSunset;
-varying flat float timeNight;
-varying flat float timeMoon;
-varying flat float timeLightTransition;
-varying flat float timeSun;
+varying float timeSunrise;
+varying float timeNoon;
+varying float timeSunset;
+varying float timeNight;
+varying float timeMoon;
+varying float timeLightTransition;
+varying float timeSun;
 
 uniform float sunAngle;
 //uniform int worldTime;

@@ -1,19 +1,21 @@
 #version 120
 #include "/lib/math.glsl"
 
+#extension GL_EXT_gpu_shader4 : enable
+
 varying vec4 tint;
 
 varying vec3 vpos;
 
 varying flat int star;
 
-varying flat vec3 svec;
-varying flat vec3 mvec;
-varying flat vec3 uvec;
+varying vec3 svec;
+varying vec3 mvec;
+varying vec3 uvec;
 
-varying flat vec3 skycol;
-varying flat vec3 suncol;
-varying flat vec3 fogcol;
+varying vec3 skycol;
+varying vec3 suncol;
+varying vec3 fogcol;
 
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;

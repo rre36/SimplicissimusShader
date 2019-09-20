@@ -2,24 +2,24 @@
 #include "/lib/math.glsl"
 #include "/lib/common.glsl"
 
-varying flat float timeNoon;
-varying flat float timeMoon;
-varying flat float timeNight;
+varying float timeNoon;
+varying float timeMoon;
+varying float timeNight;
 
 varying vec4 tint;
 varying vec2 coord;
 
 varying vec3 vpos;
 varying vec3 cpos;
-varying flat vec3 normal;
+varying vec3 normal;
 
-varying flat vec3 svec;
-varying flat vec3 mvec;
-varying flat vec3 uvec;
+varying vec3 svec;
+varying vec3 mvec;
+varying vec3 uvec;
 
-varying flat vec3 skycol;
-varying flat vec3 suncol;
-varying flat vec3 fogcol;
+varying vec3 skycol;
+varying vec3 suncol;
+varying vec3 fogcol;
 
 uniform float far;
 uniform sampler2D tex;

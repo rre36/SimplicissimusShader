@@ -5,19 +5,19 @@ varying flat int noDiffuse;
 varying vec2 coord;
 varying vec2 lmap;
 
-varying flat vec3 normal;
+varying vec3 normal;
 
 varying vec3 vpos;
 varying vec3 wpos;
 varying vec3 spos;
 varying vec3 cpos;
-varying flat vec3 svec;
-varying flat vec3 lvec;
+varying vec3 svec;
+varying vec3 lvec;
 
-varying flat vec3 sunlightColor;
-varying flat vec3 skylightColor;
-varying flat vec3 torchlightColor;
-varying flat vec3 fogcol;
+varying vec3 sunlightColor;
+varying vec3 skylightColor;
+varying vec3 torchlightColor;
+varying vec3 fogcol;
 
 varying vec4 tint;
 
