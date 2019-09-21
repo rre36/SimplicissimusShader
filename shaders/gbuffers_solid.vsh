@@ -102,7 +102,6 @@ void main() {
 
     #ifdef terrain
 	if (mc_Entity.x == 6.0 ||
-		mc_Entity.x == 18.0 ||
 		mc_Entity.x == 31.0 ||
 		mc_Entity.x == 38.0 ||
 		mc_Entity.x == 59.0 ||
