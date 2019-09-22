@@ -101,7 +101,7 @@ void main() {
     vec3 sunlight   = sunlightColor*shadow*shadowcol;
 
 	vec3 lighting 	= sunlight*finv(timeLightTransition) + skylightColor*lmap.y;
-		lighting 	= max(lighting, lmapcol)*torchlightColor;
+		lighting 	= max(lighting, lmapcol*torchlightColor);
 
 	scenecol.rgb   *= lighting;
 

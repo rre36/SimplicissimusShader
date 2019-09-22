@@ -106,7 +106,7 @@ void main() {
 
 	fogcol 		= fsunrise*timeSunrise + fnoon*timeNoon + fsunset*timeSunset + fnight*timeNight;
 
-	torchlightColor = vec3(1.0, 0.92, 0.9);
+	torchlightColor = vec3(1.0, 0.9, 0.8);
 
     #ifdef terrain
 	if (mc_Entity.x == 6.0 ||
