@@ -16,6 +16,11 @@ varying vec3 skycol;
 varying vec3 suncol;
 varying vec3 fogcol;
 
+uniform int frameCounter;
+
+uniform float viewWidth;
+uniform float viewHeight;
+
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
@@ -33,12 +38,15 @@ void repackPos() {
     position = gl_ProjectionMatrix * (gbufferModelView * position);
 }
 
+#include "/lib/taaJitter.glsl"
+
 void main() {
 	position 	= (gl_ModelViewMatrix*gl_Vertex);
     vpos 		= position.xyz;
     position 	= gbufferModelViewInverse*position;
 	cpos 		= position.xyz;
 	repackPos();
+	position.xy = taaJitter(position.xy, position.w);
 	gl_Position = position;
 
 	tint 	= gl_Color;

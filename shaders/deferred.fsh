@@ -5,6 +5,7 @@ const int RGB16 = 0;
 const int RGBA16 = 0;
 const int colortex0Format   = RGB16;
 const int colortex2Format 	= RGBA16;
+const int colortex5Format   = RGB16;
 
 uniform sampler2D colortex0;
 

@@ -23,6 +23,11 @@ varying vec4 tint;
 
 attribute vec4 mc_Entity;
 
+uniform int frameCounter;
+
+uniform float viewWidth;
+uniform float viewHeight;
+
 uniform vec3 shadowLightPosition;
 uniform vec3 fogColor;
 uniform vec3 sunPosition;
@@ -45,7 +50,9 @@ vec3 getShadowCoordinate(vec3 vpos, float bias) {
 	return position*0.5+0.5;
 }
 
-#include "lib/time.glsl"
+#include "/lib/time.glsl"
+
+#include "/lib/taaJitter.glsl"
 
 void main() {
 	//essential vertex setup
@@ -63,8 +70,9 @@ void main() {
 
 	repackPos();
 
+	position.xy = taaJitter(position.xy, position.w);
+
 	gl_Position = position;
-	gl_FogFragCoord = gl_Position.z;
 
 	normal 	= normalize(gl_NormalMatrix*gl_Normal);
 	lvec	= normalize(shadowLightPosition);

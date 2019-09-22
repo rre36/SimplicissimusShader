@@ -61,6 +61,7 @@ vec3 getSky() {
     return sky;
 }
 
+#ifdef s_secondCloudLayer
 uniform float frameTimeCounter;
 uniform float eyeAltitude;
 
@@ -87,7 +88,7 @@ vec3 clouds(vec3 scenecol) {
 
     if (visible) {
         vec3 plane  = wvec*((cloudAlt-eyeAltitude)/wvec.y);
-        vec3 coord  = plane+cameraPosition*1.25;
+        vec3 coord  = plane+cameraPosition*0.75;
         float fade  = 1.0-linStep(length(plane.xz), 500.0, 2500.0);
         if (fade>0.0) cloud = getCloud(coord)*fade;
 
@@ -98,6 +99,7 @@ vec3 clouds(vec3 scenecol) {
 
         vec3 color      = suncol*(phase1*0.5+0.25);
             color      += (skycol+fogcol*0.6)*0.15;
+            color       = mix(color, vec3(0.45, 0.4, 1.0)*0.02, timeNight);
 
         scenecol       *= 1.0-cloud*0.2;
         scenecol       += color*cloud*0.3;
@@ -105,12 +107,16 @@ vec3 clouds(vec3 scenecol) {
 
     return scenecol;
 }
+#endif
 
 void main() {
     vec4 scenecol       = tint;
         scenecol.rgb    = pow(scenecol.rgb, vec3(2.2));
         scenecol.rgb    = getSky();
+
+    #ifdef s_secondCloudLayer
         scenecol.rgb    = clouds(scenecol.rgb);
+    #endif
 
 	scenecol.rgb 	= compressHDR(scenecol.rgb);
 
