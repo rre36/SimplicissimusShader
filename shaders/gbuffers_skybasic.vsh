@@ -4,6 +4,7 @@
 varying vec4 tint;
 
 varying vec3 vpos;
+varying vec3 wpos;
 
 varying float star;
 
@@ -36,6 +37,7 @@ void main() {
 	position 	= (gl_ModelViewMatrix*gl_Vertex);
     vpos 		= position.xyz;
     position 	= gbufferModelViewInverse*position;
+	wpos 		= position.xyz;
 	repackPos();
 	gl_Position = position;
 	tint = gl_Color;

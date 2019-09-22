@@ -11,6 +11,7 @@ varying float timeMoon;
 varying vec4 tint;
 
 varying vec3 vpos;
+varying vec3 wpos;
 
 varying vec3 svec;
 varying vec3 mvec;
@@ -19,6 +20,8 @@ varying vec3 uvec;
 varying vec3 skycol;
 varying vec3 suncol;
 varying vec3 fogcol;
+
+uniform sampler2D gaux1;
 
 vec3 getSky() {
     vec3 nfrag  = -normalize(vpos);
@@ -58,10 +61,56 @@ vec3 getSky() {
     return sky;
 }
 
+uniform float frameTimeCounter;
+uniform float eyeAltitude;
+
+uniform vec3 cameraPosition;
+
+#define cloudAlt 400.0
+
+float getCloud(vec3 pos) {
+    const float size    = 0.00008;
+    vec2 coord  = -pos.xz*size;
+    vec2 anim   = vec2(-frameTimeCounter*size*2.0, 0.0);
+
+    float shape = texture2D(gaux1, coord+anim).a;
+
+    return shape;
+}
+
+vec3 clouds(vec3 scenecol) {
+    vec3 wvec   = normalize(wpos);
+
+    float cloud = 0.0;
+
+    bool visible = wvec.y>0.0 && eyeAltitude<cloudAlt;
+
+    if (visible) {
+        vec3 plane  = wvec*((cloudAlt-eyeAltitude)/wvec.y);
+        vec3 coord  = plane+cameraPosition*1.25;
+        float fade  = 1.0-linStep(length(plane.xz), 500.0, 2500.0);
+        if (fade>0.0) cloud = getCloud(coord)*fade;
+
+		float vdotl 	= dot(normalize(vpos), svec)*0.5+0.5;
+		float phase1 	= pow6(saturate(vdotl))*1.2;
+		//float phase2 	= pow3(saturate(-vdotl));
+		//float phase 	= mix(phase1, phase2, 0.4)+0.5;
+
+        vec3 color      = suncol*(phase1*0.5+0.25);
+            color      += (skycol+fogcol*0.6)*0.15;
+
+        scenecol       *= 1.0-cloud*0.2;
+        scenecol       += color*cloud*0.3;
+    }
+
+    return scenecol;
+}
+
 void main() {
     vec4 scenecol       = tint;
         scenecol.rgb    = pow(scenecol.rgb, vec3(2.2));
         scenecol.rgb    = getSky();
+        scenecol.rgb    = clouds(scenecol.rgb);
 
 	scenecol.rgb 	= compressHDR(scenecol.rgb);
 
