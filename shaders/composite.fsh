@@ -2,10 +2,10 @@
 
 varying vec2 coord;
 
-const bool colortex5Clear   = false;
+const bool colortex1Clear   = false;
 
 uniform sampler2D colortex0;
-uniform sampler2D colortex5;
+uniform sampler2D colortex1;
 uniform sampler2D depthtex1;
 
 uniform float viewWidth;
@@ -38,7 +38,7 @@ vec3 applyTAA(float depth, vec3 scenecol) {
     vec2 taaCoord       = taaReprojection(coord, depth);
     vec2 viewport       = 1.0/vec2(viewWidth, viewHeight);
 
-    vec3 taaCol         = texture2D(colortex5, taaCoord).rgb;
+    vec3 taaCol         = texture2D(colortex1, taaCoord).rgb;
         taaCol          = taaClamp(taaCol);
 
     vec3 coltl      = texture2D(colortex0,coord+vec2(-1.0,-1.0)*viewport).rgb;
@@ -70,7 +70,7 @@ void main() {
 
     scenecol        = applyTAA(depth, scenecol);
 
-    /*DRAWBUFFERS:05*/
+    /*DRAWBUFFERS:01*/
     gl_FragData[0]  = vec4(scenecol, 1.0);
     gl_FragData[1]  = vec4(scenecol, 1.0);
 }

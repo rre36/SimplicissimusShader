@@ -1,6 +1,9 @@
 #include "/lib/math.glsl"
 #include "/lib/common.glsl"
 
+#define fogStart 0.2 	//[0.0 0.2 0.4 0.6 0.8]
+#define fogIntensity 1.0 //[0 0.2 0.4 0.6 0.8 1.0]
+
 uniform sampler2D tex;
 uniform sampler2D lightmap;
 
@@ -57,10 +60,10 @@ vec3 getFog(vec3 color){
 		sglow  *= timeSunrise+timeSunset;
 
 	float dist 	= length(cpos)/far;
-		dist 	= max((dist-0.2)*1.25, 0.0);
+		dist 	= max((dist-fogStart)*1.25, 0.0);
 	float alpha = 1.0-exp2(-dist);
 
-	color 	= mix(color, fogcol*finv(sglow)+sunlightColor*sglow*5.0, saturate(pow2(alpha)));
+	color 	= mix(color, fogcol*finv(sglow)+sunlightColor*sglow*5.0, saturate(pow2(alpha))*fogIntensity);
 
 	return color;
 }
@@ -114,6 +117,13 @@ void main() {
 
 	scenecol.rgb 	= compressHDR(scenecol.rgb);
 
-	/*DRAWBUFFERS:0*/
+	#ifdef isHand
+		vec4 ret1 	= vec4(1.0, 0.0, 0.0, 1.0);
+	#else
+		vec4 ret1 	= vec4(0.0, 0.0, 0.0, 1.0);
+	#endif
+
+	/*DRAWBUFFERS:02*/
 	gl_FragData[0] = scenecol;
+	gl_FragData[1] = ret1;
 }

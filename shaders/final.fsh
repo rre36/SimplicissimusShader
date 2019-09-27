@@ -1,12 +1,14 @@
 #version 120
 
+#define info 0 		//[0]
+
 #define setBitdepth 8       //[6 8 10 12]
 
 #include "/lib/common.glsl"
 
 uniform sampler2D colortex0;
 
-varying vec2 texcoord;
+varying vec2 coord;
 
 float bayer2(vec2 a){
     a = floor(a);
@@ -63,7 +65,7 @@ vec3 imageDither(vec3 color) {
 }
 
 void main() {
-	vec3 scenecol 		= texture2D(colortex0, texcoord).rgb;
+	vec3 scenecol 		= texture2D(colortex0, coord).rgb;
 		scenecol 		= decompressHDR(scenecol.rgb);
 		scenecol 		= reinhardTonemap(scenecol);
 		scenecol 		= pow(scenecol, vec3(1.0/2.2));	//convert color back to display gamma

@@ -1,0 +1,10 @@
+option.info=Simplicissimus by RRe36
+value.info.0=v1.0
+
+option.shadowMapResolution=Shadowmap Resolution
+option.sunPathRotation=Sun Path Rotation
+option.fogIntensity=Fog Intensity
+value.fogIntensity.0=Off
+option.fogStart=Fog Start
+option.bloom=Bloom
+option.useMotionblur=Motionblur
