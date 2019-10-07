@@ -21,8 +21,6 @@ varying vec3 fogcol;
 
 varying vec4 tint;
 
-attribute vec4 mc_Entity;
-
 uniform int frameCounter;
 
 uniform float viewWidth;
@@ -37,12 +35,45 @@ vec4 position;
 #include "/lib/terrain/transform.glsl"
 #include "/lib/shadowmap.glsl"
 
+#define wind_effects
+
+#ifdef terrain
+attribute vec4 mc_Entity;
+#ifdef wind_effects
+	attribute vec4 mc_midTexCoord;
+	uniform float frameTimeCounter;
+
+	vec3 get_wind(vec3 pos) {
+		vec3 w 	= pos*vec3(1.0, 0.3, 0.1);
+		float tick = frameTimeCounter*pi;
+
+		float m = sin(tick+(pos.x+pos.y+pos.z)*0.5)*0.4+0.6;
+
+		float a 	= sin(tick*1.2+(w.x+w.y+w.z)*1.5)*0.4-0.35;
+		float b 	= sin(tick*1.3+(w.x+w.y+w.z)*2.5)*0.2;
+		float c 	= sin(tick*1.35+(w.x+w.y+w.z)*2.0)*0.1;
+
+		vec3 w0 	= vec3(a, b, c)*m*0.2;
+
+		float m1 	= sin(tick*1.3+(pos.x+pos.y+pos.z)*0.9)*0.3+0.7;
+
+		float a1	= sin(tick*2.4+(w.x+w.y+w.z)*7.5)*0.4-0.3;
+		float b1	= sin(tick*1.8+(w.x+w.y+w.z)*5.5)*0.2;
+		float c1	= sin(tick*2.2+(w.x+w.y+w.z)*9.0)*0.1;
+
+		vec3 w1 	= vec3(a1, b1, c1)*m1*0.1;
+		return w0+w1;
+	}
+#endif
+#endif
+
 vec3 getShadowCoordinate(vec3 vpos, float bias) {
 	vec3 position 	= vpos;
 		position   += vec3(bias)*lvec;
 		position 	= viewMAD(gbufferModelViewInverse, position);
 		position 	= viewMAD(shadowModelView, position);
 		position 	= projMAD(shadowProjection, position);
+		position.z -= 0.0007;
 
 		position.z *= 0.2;
 		warpShadowmap(position.xy);
@@ -68,6 +99,26 @@ void main() {
     position.xyz += cameraPosition.xyz;
 	wpos = position.xyz;
 
+	#ifdef terrain
+	#ifdef wind_effects
+		bool top_vertex 	= gl_MultiTexCoord0.t < mc_midTexCoord.t;
+		if ((mc_Entity.x == 6.0 ||
+		 mc_Entity.x == 31.0 ||
+		 mc_Entity.x == 38.0 ||
+		 mc_Entity.x == 59.0 ||
+		 mc_Entity.x == 141.0 ||
+		 mc_Entity.x == 142.0 ||
+		 mc_Entity.x == 600.0 )
+		 && top_vertex) position.xyz += get_wind(wpos);
+
+		if (mc_Entity.x == 240.0 && top_vertex) position.xyz += get_wind(wpos)*0.5;
+		if (mc_Entity.x == 241.0) position.xyz += get_wind(wpos)*(float(top_vertex)*0.5+0.5);
+
+		if (mc_Entity.x == 18.0 ||
+		 mc_Entity.x == 161.0) position.xyz += get_wind(wpos)*0.2;
+	#endif
+	#endif
+
 	repackPos();
 
 	position.xy = taaJitter(position.xy, position.w);
@@ -78,7 +129,7 @@ void main() {
 	lvec	= normalize(shadowLightPosition);
 	svec 	= normalize(sunPosition);
 
-	spos 	= getShadowCoordinate(vpos, 0.06);
+	spos 	= getShadowCoordinate(vpos, 0.08);
 
 	daytime();
 
@@ -122,7 +173,7 @@ void main() {
 		mc_Entity.x == 241.0 ||
 		mc_Entity.x == 600.0 ||
 		mc_Entity.x == 601.0) {
-			noDiffuse = 1.0;
+			noDiffuse = 0.8;
 		} else {
         	noDiffuse = 0.0;
         }

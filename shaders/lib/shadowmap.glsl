@@ -1,5 +1,3 @@
-//the functions in this file are "bending" the shadowmap so that it conatins higher detail close to the camera
-//it also allows for infinite shadowdistances
 //method based on code from robobo1221
 
 #define shadowmapBias 0.85

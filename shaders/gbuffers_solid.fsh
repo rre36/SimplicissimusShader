@@ -1,6 +1,10 @@
 #include "/lib/math.glsl"
 #include "/lib/common.glsl"
 
+//#define hq_shadows
+
+const int shadowMapResolution   = 4096; 	//[512 1024 1536 2048 2560 3072 3584 4096 6144 8192]
+
 #define fogStart 0.2 	//[0.0 0.2 0.4 0.6 0.8]
 #define fogIntensity 1.0 //[0 0.2 0.4 0.6 0.8 1.0]
 
@@ -38,8 +42,28 @@ uniform sampler2DShadow shadowcolor0;
 
 uniform float far;
 
+#ifdef hq_shadows
+	float ditherGradNoise(){
+		return fract(52.9829189*fract(0.06711056*gl_FragCoord.x + 0.00583715*gl_FragCoord.y));
+	}
+
+	float shadowFilter(sampler2DShadow shadowtex, vec3 pos) {
+		const float step = 1.0/shadowMapResolution;
+		float noise     = ditherGradNoise()*pi;
+		vec2 offset     = vec2(cos(noise), sin(noise))*step;
+		float shade     = shadow2D(shadowtex, vec3(pos.xy+offset, pos.z)).x;
+			shade      += shadow2D(shadowtex, vec3(pos.xy-offset, pos.z)).x;
+			shade      += shadow2D(shadowtex, pos.xyz).x*0.5;
+		return shade*0.4;
+	}
+#endif
+
 float getShadow(sampler2DShadow shadowtex, in vec3 shadowpos) {
-	float shadow 	= shadow2D(shadowtex, shadowpos).x;
+	#ifdef hq_shadows
+		float shadow 	= shadowFilter(shadowtex, shadowpos).x;
+	#else
+		float shadow 	= shadow2D(shadowtex, shadowpos).x;
+	#endif
 
 	return shadow;
 }
