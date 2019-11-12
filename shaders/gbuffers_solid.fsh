@@ -60,7 +60,7 @@ uniform float far;
 
 float getShadow(sampler2DShadow shadowtex, in vec3 shadowpos) {
 	#ifdef hq_shadows
-		float shadow 	= shadowFilter(shadowtex, shadowpos).x;
+		float shadow 	= shadowFilter(shadowtex, shadowpos);
 	#else
 		float shadow 	= shadow2D(shadowtex, shadowpos).x;
 	#endif
