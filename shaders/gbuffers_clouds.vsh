@@ -1,6 +1,8 @@
 #version 120
 #include "/lib/math.glsl"
 
+//#define cloud_twolayer
+
 varying vec4 tint;
 varying vec2 coord;
 
@@ -30,6 +32,12 @@ uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform vec3 fogColor;
 
+uniform int instanceId;
+
+#ifdef cloud_twolayer
+const int countInstances = 2;
+#endif
+
 #include "lib/time.glsl"
 
 vec4 position;
@@ -41,16 +49,25 @@ void repackPos() {
 #include "/lib/taaJitter.glsl"
 
 void main() {
-	position 	= (gl_ModelViewMatrix*gl_Vertex);
+	position 	= gl_Vertex;
+	
+	if (instanceId > 0) position.y += 60.0 * instanceId;
+
+	position 	= (gl_ModelViewMatrix*position);
     vpos 		= position.xyz;
     position 	= gbufferModelViewInverse*position;
+
 	cpos 		= position.xyz;
 	repackPos();
 	position.xy = taaJitter(position.xy, position.w);
 	gl_Position = position;
 
 	tint 	= gl_Color;
-	coord 	= (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;	
+	if (instanceId > 0) tint.a *= 0.5 /float(instanceId);
+
+	coord 	= (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+	if (instanceId == 1) coord = coord.yx;
+	if (instanceId == 2) coord = vec2(-coord.x, coord.y);
 
 	normal 	= normalize(gl_NormalMatrix*gl_Normal);
 

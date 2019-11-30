@@ -10,3 +10,7 @@ value.fogIntensity.0=Off
 option.fogStart=Fog Start
 option.bloom=Bloom
 option.useMotionblur=Motionblur
+
+option.cloud_twolayer=Cloud Instance Layer
+option.cloud_twolayer.comment=This causes some weirdness when being above the regular cloud layer but below the instanced one.
+option.s_secondCloudLayer=2D Cloud Layer

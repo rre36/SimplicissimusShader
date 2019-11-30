@@ -94,6 +94,9 @@ vec3 cloudShading(vec3 color) {
 
 void main() {
 	vec4 scenecol 	= texture2D(tex, coord)*tint;
+
+    if (scenecol.a < 0.01) discard;
+
     scenecol.rgb = pow(scenecol.rgb, vec3(2.2))*2.0;
 	scenecol.rgb = cloudShading(scenecol.rgb);
 	scenecol.rgb = getFog(scenecol.rgb);
