@@ -16,7 +16,7 @@ void main() {
 
     scenecol.rgb    = pow(scenecol.rgb, vec3(2.2));
 
-    scenecol.rgb   *= 4.0;
+    scenecol.rgb   *= 3.0;
 
     scenecol.rgb 	= compressHDR(scenecol.rgb);
 
