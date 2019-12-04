@@ -3,7 +3,7 @@
 
 //#define hq_shadows
 
-const int shadowMapResolution   = 4096; 	//[512 1024 1536 2048 2560 3072 3584 4096 6144 8192]
+const int shadowMapResolution   = 2560; 	//[512 1024 1536 2048 2560 3072 3584 4096 6144 8192]
 
 #define fogStart 0.2 	//[0.0 0.2 0.4 0.6 0.8]
 #define fogIntensity 1.0 //[0 0.2 0.4 0.6 0.8 1.0]
@@ -41,6 +41,8 @@ uniform sampler2DShadow shadowtex1;
 uniform sampler2DShadow shadowcolor0;
 
 uniform float far;
+
+uniform vec3 lightvec;
 
 #ifdef hq_shadows
 	float ditherGradNoise(){
@@ -92,6 +94,39 @@ vec3 getFog(vec3 color){
 	return color;
 }
 
+//#define pixel_shadows
+#define pixel_shadow_res 32 	//[8 16 32 64 128 256]
+
+#ifdef pixel_shadows
+uniform mat4 gbufferProjectionInverse;
+uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
+uniform mat4 shadowProjection;
+uniform mat4 shadowProjectionInverse;
+uniform mat4 shadowModelView;
+uniform mat4 shadowModelViewInverse;
+
+uniform vec3 cameraPosition;
+
+#include "/lib/shadowmap.glsl"
+
+vec3 getShadowCoordinate() {
+		float bias 	= 0.1;
+	vec3 position 	= vpos;
+		position 	= viewMAD(gbufferModelViewInverse, position);
+		position 	= floor((position + cameraPosition) * pixel_shadow_res) / pixel_shadow_res - cameraPosition;
+		position   += vec3(bias)*lightvec;
+		position 	= viewMAD(shadowModelView, position);
+		position 	= projMAD(shadowProjection, position);
+		position.z -= 0.0007;
+
+		position.z *= 0.2;
+		warpShadowmap(position.xy);
+
+	return position*0.5+0.5;
+}
+#endif
+
 void main() {
 	vec4 scenecol 	= texture2D(tex, coord)*vec4(tint.rgb, 1.0);
 
@@ -109,6 +144,10 @@ void main() {
 
 	float shadow  	= 1.0;
     vec3 shadowcol  = vec3(1.0);
+
+	#ifdef pixel_shadows
+	vec3 spos 		= getShadowCoordinate();
+	#endif
 
 	if (diffuse>0.0) {
 		shadow 	= getShadow(shadowtex1, spos);

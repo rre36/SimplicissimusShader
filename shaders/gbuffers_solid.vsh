@@ -1,5 +1,7 @@
 #include "/lib/math.glsl"
 
+const int shadowMapResolution   = 2560; 	//[512 1024 1536 2048 2560 3072 3584 4096 6144 8192]
+
 varying float noDiffuse;
 
 varying vec2 coord;
@@ -129,7 +131,7 @@ void main() {
 	lvec	= normalize(shadowLightPosition);
 	svec 	= normalize(sunPosition);
 
-	spos 	= getShadowCoordinate(vpos, 0.08);
+	spos 	= getShadowCoordinate(vpos, 0.08 * (2048.0 / shadowMapResolution));
 
 	daytime();
 
