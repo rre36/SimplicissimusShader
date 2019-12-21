@@ -49,6 +49,8 @@ varying vec3 fogcol;
 
 varying vec4 tint;
 
+uniform mat4 gbufferModelViewInverse;
+
 #ifdef labpbr_enabled
 	uniform sampler2D specular;
 #endif
@@ -57,8 +59,6 @@ varying vec4 tint;
 	uniform sampler2D normals;
 
 	varying mat3x3 tbn;
-
-	uniform mat4 gbufferModelViewInverse;
 #endif
 
 const bool shadowHardwareFiltering = true;
@@ -126,7 +126,6 @@ vec3 getFog(vec3 color){
 #ifdef pixel_shadows
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
 uniform mat4 shadowProjection;
 uniform mat4 shadowProjectionInverse;
 uniform mat4 shadowModelView;
