@@ -1,3 +1,16 @@
+/*
+Copyright (C) 2019 RRe36
+
+All Rights Reserved unless otherwise explicitly stated.
+
+
+By downloading this you have agreed to the license and terms of use.
+These can be found inside the included license-file or here: https://rre36.github.io/license/
+
+Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
+*/
+
+
 const float pi = 3.14159265358979323846;
 
 #define diag3(m) vec3((m)[0].x, (m)[1].y, m[2].z)
@@ -34,7 +47,12 @@ float vec3avg(vec3 x) {
     return (x.r+x.g+x.b)/3.0;
 }
 
-float linStep(float x, float low, float high) {
+float lin_step(float x, float low, float high) {
     float t = saturate((x-low)/(high-low));
+    return t;
+}
+
+vec3 lin_step(vec3 x, float low, float high) {
+    vec3 t = saturate((x-low)/(high-low));
     return t;
 }

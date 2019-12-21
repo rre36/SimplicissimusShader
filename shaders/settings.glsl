@@ -1,4 +1,3 @@
-#version 120
 /*
 Copyright (C) 2019 RRe36
 
@@ -12,7 +11,9 @@ Violating these terms may be penalized with actions according to the Digital Mil
 */
 
 
+#define taa_enabled
 
-#define g_textured
-
-#include "gbuffers_solid.fsh"
+#ifdef g_textured
+//#define labpbr_enabled
+//#define normalmap_enabled
+#endif

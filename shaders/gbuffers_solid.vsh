@@ -1,4 +1,20 @@
+
+/*
+Copyright (C) 2019 RRe36
+
+All Rights Reserved unless otherwise explicitly stated.
+
+
+By downloading this you have agreed to the license and terms of use.
+These can be found inside the included license-file or here: https://rre36.github.io/license/
+
+Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
+*/
+
+
 #include "/lib/math.glsl"
+
+#include "/settings.glsl"
 
 const int shadowMapResolution   = 2560; 	//[512 1024 1536 2048 2560 3072 3584 4096 6144 8192]
 
@@ -14,12 +30,17 @@ varying vec3 wpos;
 varying vec3 spos;
 varying vec3 cpos;
 varying vec3 svec;
-varying vec3 lvec;
 
 varying vec3 sunlightColor;
 varying vec3 skylightColor;
 varying vec3 torchlightColor;
 varying vec3 fogcol;
+
+#if (defined labpbr_enabled || defined normalmap_enabled)
+    varying mat3x3 tbn;
+
+    attribute vec4 at_tangent;
+#endif
 
 varying vec4 tint;
 
@@ -28,9 +49,12 @@ uniform int frameCounter;
 uniform float viewWidth;
 uniform float viewHeight;
 
+uniform vec2 taaOffset;
+
 uniform vec3 shadowLightPosition;
 uniform vec3 fogColor;
 uniform vec3 sunPosition;
+uniform vec3 lightvec;
 
 vec4 position;
 
@@ -71,8 +95,8 @@ attribute vec4 mc_Entity;
 
 vec3 getShadowCoordinate(vec3 vpos, float bias) {
 	vec3 position 	= vpos;
-		position   += vec3(bias)*lvec;
 		position 	= viewMAD(gbufferModelViewInverse, position);
+		position   += vec3(bias)*lightvec;
 		position 	= viewMAD(shadowModelView, position);
 		position 	= projMAD(shadowProjection, position);
 		position.z -= 0.0007;
@@ -84,8 +108,6 @@ vec3 getShadowCoordinate(vec3 vpos, float bias) {
 }
 
 #include "/lib/time.glsl"
-
-#include "/lib/taaJitter.glsl"
 
 void main() {
 	//essential vertex setup
@@ -123,12 +145,23 @@ void main() {
 
 	repackPos();
 
-	position.xy = taaJitter(position.xy, position.w);
+	#ifdef taa_enabled
+		position.xy += taaOffset*position.w;
+	#endif
 
 	gl_Position = position;
 
-	normal 	= normalize(gl_NormalMatrix*gl_Normal);
-	lvec	= normalize(shadowLightPosition);
+	normal 	= mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix*gl_Normal);
+
+    #if (defined labpbr_enabled || defined normalmap_enabled)
+        vec3 tangent = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix*at_tangent.xyz);
+        vec3 binormal = mat3(gbufferModelViewInverse) * normalize(gl_NormalMatrix*cross(at_tangent.xyz, gl_Normal.xyz) * at_tangent.w);
+
+        tbn     = mat3(tangent.x, binormal.x, normal.x,
+                    tangent.y, binormal.y, normal.y,
+                    tangent.z, binormal.z, normal.z);
+    #endif
+
 	svec 	= normalize(sunPosition);
 
 	spos 	= getShadowCoordinate(vpos, 0.08 * (2048.0 / shadowMapResolution));

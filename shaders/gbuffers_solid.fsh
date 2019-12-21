@@ -1,5 +1,20 @@
+/*
+Copyright (C) 2019 RRe36
+
+All Rights Reserved unless otherwise explicitly stated.
+
+
+By downloading this you have agreed to the license and terms of use.
+These can be found inside the included license-file or here: https://rre36.github.io/license/
+
+Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
+*/
+
+
+
 #include "/lib/math.glsl"
 #include "/lib/common.glsl"
+#include "/settings.glsl"
 
 //#define hq_shadows
 
@@ -26,7 +41,6 @@ varying vec3 wpos;
 varying vec3 spos;
 varying vec3 cpos;
 varying vec3 svec;
-varying vec3 lvec;
 
 varying vec3 sunlightColor;
 varying vec3 skylightColor;
@@ -34,6 +48,18 @@ varying vec3 torchlightColor;
 varying vec3 fogcol;
 
 varying vec4 tint;
+
+#ifdef labpbr_enabled
+	uniform sampler2D specular;
+#endif
+
+#if (defined labpbr_enabled || defined normalmap_enabled)
+	uniform sampler2D normals;
+
+	varying mat3x3 tbn;
+
+	uniform mat4 gbufferModelViewInverse;
+#endif
 
 const bool shadowHardwareFiltering = true;
 uniform sampler2DShadow shadowtex0;
@@ -81,7 +107,7 @@ vec3 getFog(vec3 color){
 	vec3 sgvec  = normalize(svec+nfrag);
 
 	float sgrad = 1.0-dot(sgvec, nfrag);
-	float sglow = linStep(sgrad, 0.1, 0.99);
+	float sglow = lin_step(sgrad, 0.1, 0.99);
         sglow   = pow4(sglow);
 		sglow  *= timeSunrise+timeSunset;
 
@@ -127,8 +153,66 @@ vec3 getShadowCoordinate() {
 }
 #endif
 
+
+/* ------ labPBR relevant stuff ------ */
+
+#ifdef labpbr_enabled
+	vec3 decode_lab_nrm(vec3 ntex, inout float ao) {
+		ntex    = ntex * 2.0 - (254.0 * rcp(255.0));
+
+		ao     *= pow2(length(ntex));
+
+		ntex    = normalize(ntex);
+
+		return normalize(ntex * tbn);
+	}
+#else
+	#ifdef normalmap_enabled
+	vec3 decode_nrm(vec3 ntex) {
+		ntex    = ntex * 2.0 - (254.0 * rcp(255.0));
+
+		ntex    = normalize(ntex);
+
+		return normalize(ntex * tbn);
+	}
+	#endif
+#endif
+
+vec3 decode_lab(vec4 unpacked_tex, out bool is_metal) {
+	vec3 mat_data = vec3(1.0, 0.0, 0.0);
+
+    mat_data.x  = pow2(1.0 - unpacked_tex.x);   //roughness
+    mat_data.y  = pow2(unpacked_tex.y);         //f0
+
+    unpacked_tex.w = unpacked_tex.w * 255.0;
+
+    mat_data.z  = unpacked_tex.w < 254.5 ? lin_step(unpacked_tex.w, 0.0, 254.0) : 0.0; //emission
+
+    is_metal    = (unpacked_tex.y * 255.0) > 229.5;
+
+	return mat_data;
+}
+
+float get_specGGX(vec3 normal, vec3 svec, vec2 material) {
+    float f0  = material.y;
+    float roughness = pow2(material.x);
+
+    vec3 h      = lightvec - svec;
+    float hn    = inversesqrt(dot(h, h));
+    float hDotL = saturate(dot(h, lightvec)*hn);
+    float hDotN = saturate(dot(h, normal)*hn);
+    float nDotL = saturate(dot(normal, lightvec));
+    float denom = (hDotN * roughness - hDotN) * hDotN + 1.0;
+    float D     = roughness / (pi * denom * denom);
+    float F     = f0 + (1.0-f0) * exp2((-5.55473*hDotL-6.98316)*hDotL);
+    float k2    = 0.25 * roughness;
+
+    return nDotL * D * F / (hDotL * hDotL * (1.0-k2) + k2);
+}
+
 void main() {
 	vec4 scenecol 	= texture2D(tex, coord)*vec4(tint.rgb, 1.0);
+	vec3 scenenormal = normal;
 
 	#ifndef translucency
 		if(scenecol.a < 0.1) discard;
@@ -136,10 +220,31 @@ void main() {
 
 		scenecol.rgb = pow(scenecol.rgb, vec3(2.2));
 
+
+	#ifdef labpbr_enabled
+		//vec4 spectex    = texture(specular, coord);
+		//vec2 return1_zw = vec2(encode2x8(spectex.xy), encode2x8(spectex.zw));
+
+		vec3 albedo 	= scenecol.rgb;
+		float t_ao 		= 1.0;
+
+		vec4 ntex       = texture2D(normals, coord);
+
+		scenenormal     = decode_lab_nrm(ntex.rgb, t_ao);
+	#else
+		#ifdef normalmap_enabled
+			vec4 ntex       = texture2D(normals, coord);
+
+			scenenormal     = decode_nrm(ntex.rgb);
+		#endif
+
+		//const vec2 return1_zw = vec2(1.0);
+	#endif
+
     #ifdef isParticle
     float diffuse   = 1.0;
     #else
-	float diffuse 	= getDiffuse(normal, lvec);
+	float diffuse 	= getDiffuse(scenenormal, lightvec);
     #endif
 
 	float shadow  	= 1.0;
@@ -164,9 +269,9 @@ void main() {
 	vec3 lmapcol 	= texture2D(lightmap, vec2(lmap.x, 0.0)).rgb;
 		lmapcol 	= pow(lmapcol, vec3(2.2));
 
-    vec3 sunlight   = sunlightColor*shadow*shadowcol;
+    vec3 sunlight   = sunlightColor*shadow*shadowcol*finv(timeLightTransition);
 
-	vec3 lighting 	= sunlight*finv(timeLightTransition) + skylightColor*pow5(lmap.y);
+	vec3 lighting 	= sunlight + skylightColor*pow5(lmap.y);
 		lighting 	= max(lighting, lmapcol*torchlightColor);
 
 	scenecol.rgb   *= lighting;
@@ -175,6 +280,25 @@ void main() {
     float ao        = pow2(tint.a);
     scenecol.rgb   *= ao;
     #endif
+
+	#ifdef labpbr_enabled
+		vec4 spectex = texture2D(specular, coord);
+
+		bool is_metal = false;
+
+		vec3 mat_data = decode_lab(spectex, is_metal);
+
+		float ggx 	= get_specGGX(scenenormal, normalize(mat3(gbufferModelViewInverse) * vpos), mat_data.xy);
+
+		scenecol.rgb *= t_ao;
+
+		if (is_metal) {
+			scenecol.rgb *= albedo * 0.5 + 0.5;
+			scenecol.rgb += ggx * albedo * sunlight;
+		} else {
+			scenecol.rgb += ggx * sunlight;
+		}
+	#endif
 
     scenecol.rgb    = getFog(scenecol.rgb);
 

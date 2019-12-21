@@ -1,4 +1,19 @@
+/*
+Copyright (C) 2019 RRe36
+
+All Rights Reserved unless otherwise explicitly stated.
+
+
+By downloading this you have agreed to the license and terms of use.
+These can be found inside the included license-file or here: https://rre36.github.io/license/
+
+Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
+*/
+
+
 #include "/lib/math.glsl"
+
+#include "/settings.glsl"
 
 varying vec2 coord;
 varying vec2 lmap;
@@ -20,6 +35,8 @@ uniform int frameCounter;
 uniform float viewWidth;
 uniform float viewHeight;
 
+uniform vec2 taaOffset;
+
 uniform vec3 shadowLightPosition;
 uniform vec3 fogColor;
 uniform vec3 sunPosition;
@@ -27,8 +44,6 @@ uniform vec3 sunPosition;
 vec4 position;
 
 #include "/lib/terrain/transform.glsl"
-
-#include "/lib/taaJitter.glsl"
 
 void main() {
 	//essential vertex setup
@@ -46,7 +61,9 @@ void main() {
 
 	repackPos();
 
-	position.xy = taaJitter(position.xy, position.w);
+	#ifdef taa_enabled
+		position.xy += taaOffset*position.w;
+	#endif
 
 	gl_Position = position;
 

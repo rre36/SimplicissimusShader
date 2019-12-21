@@ -1,5 +1,21 @@
 #version 120
+/*
+Copyright (C) 2019 RRe36
+
+All Rights Reserved unless otherwise explicitly stated.
+
+
+By downloading this you have agreed to the license and terms of use.
+These can be found inside the included license-file or here: https://rre36.github.io/license/
+
+Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
+*/
+
+
+
 #include "/lib/math.glsl"
+
+#include "/settings.glsl"
 
 //#define cloud_twolayer
 
@@ -26,6 +42,8 @@ uniform float viewHeight;
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
+uniform vec2 taaOffset;
+
 uniform vec3 sunPosition;
 uniform vec3 moonPosition;
 uniform vec3 upPosition;
@@ -46,8 +64,6 @@ void repackPos() {
     position = gl_ProjectionMatrix * (gbufferModelView * position);
 }
 
-#include "/lib/taaJitter.glsl"
-
 void main() {
 	position 	= gl_Vertex;
 	
@@ -59,7 +75,9 @@ void main() {
 
 	cpos 		= position.xyz;
 	repackPos();
-	position.xy = taaJitter(position.xy, position.w);
+	#ifdef taa_enabled
+		position.xy += taaOffset*position.w;
+	#endif
 	gl_Position = position;
 
 	tint 	= gl_Color;

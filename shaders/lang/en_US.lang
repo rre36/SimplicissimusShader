@@ -3,7 +3,16 @@ value.info.0=v1.1
 
 option.shadowMapResolution=Shadowmap Resolution
 option.hq_shadows=Soft Shadows
+option.pixel_shadows=Pixel Shadows (WIP)
+option.pixel_shadow_res=Pixel Size
+
 option.sunPathRotation=Sun Path Rotation
+
+option.labpbr_enabled=labPBR Support
+option.normalmap_enabled=Normalmap Support
+option.normalmap_enabled.comment=Auto-enabled when enabling "labPBR Support"
+
+option.taa_enabled=Temporal Anti-Aliasing
 option.wind_effects=Wind Effects
 option.fogIntensity=Fog Intensity
 value.fogIntensity.0=Off

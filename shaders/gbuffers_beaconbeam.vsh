@@ -1,4 +1,19 @@
 #version 120
+/*
+Copyright (C) 2019 RRe36
+
+All Rights Reserved unless otherwise explicitly stated.
+
+
+By downloading this you have agreed to the license and terms of use.
+These can be found inside the included license-file or here: https://rre36.github.io/license/
+
+Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
+*/
+
+
+
+#include "/settings.glsl"
 
 varying vec2 coord;
 varying vec2 lmap;
@@ -12,7 +27,7 @@ uniform int frameCounter;
 uniform float viewWidth;
 uniform float viewHeight;
 
-#include "/lib/taaJitter.glsl"
+uniform vec2 taaOffset;
 
 void main() {
 	tint 	= gl_Color;
@@ -21,7 +36,9 @@ void main() {
 
     position 	= gl_ProjectionMatrix*(gl_ModelViewMatrix*gl_Vertex);
 
-	position.xy = taaJitter(position.xy, position.w);
+	#ifdef taa_enabled
+		position.xy += taaOffset*position.w;
+	#endif
 
 	gl_Position = position;
 }

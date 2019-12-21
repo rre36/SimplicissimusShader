@@ -1,4 +1,18 @@
 #version 120
+/*
+Copyright (C) 2019 RRe36
+
+All Rights Reserved unless otherwise explicitly stated.
+
+
+By downloading this you have agreed to the license and terms of use.
+These can be found inside the included license-file or here: https://rre36.github.io/license/
+
+Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
+*/
+
+
+
 #include "/lib/math.glsl"
 #include "/lib/common.glsl"
 
@@ -33,21 +47,21 @@ vec3 getSky() {
     float htop  = dot(hvec0, nfrag);
     float hbot  = dot(hvec1, nfrag);
 
-    float hfade = linStep(hbot, 0.3, 0.8);
+    float hfade = lin_step(hbot, 0.3, 0.8);
         hfade   = pow6(hfade);
 
     float hgrad = 1.0-max(hbot, htop);
 
-    float horizon = linStep(hgrad, 0.12, 0.31);
+    float horizon = lin_step(hgrad, 0.12, 0.31);
         horizon = pow6(horizon);
 
     float sgrad = 1.0-dot(sgvec, nfrag);
     float mgrad = 1.0-dot(mgvec, nfrag);
 
-    float sglow = linStep(sgrad, 0.5, 0.99);
+    float sglow = lin_step(sgrad, 0.5, 0.99);
         sglow   = pow6(sglow)*0.5;
 
-    float shglow = linStep(sgrad, 0.0, 0.99);
+    float shglow = lin_step(sgrad, 0.0, 0.99);
         shglow  = pow3(shglow)*(hfade+horizon)*finv(timeMoon)*finv(timeNoon*0.8);
 
     vec3 sky    = skycol;
@@ -89,7 +103,7 @@ vec3 clouds(vec3 scenecol) {
     if (visible) {
         vec3 plane  = wvec*((cloudAlt-eyeAltitude)/wvec.y);
         vec3 coord  = plane+cameraPosition*0.75;
-        float fade  = 1.0-linStep(length(plane.xz), 500.0, 2500.0);
+        float fade  = 1.0-lin_step(length(plane.xz), 500.0, 2500.0);
         if (fade>0.0) cloud = getCloud(coord)*fade;
 
 		float vdotl 	= dot(normalize(vpos), svec)*0.5+0.5;
