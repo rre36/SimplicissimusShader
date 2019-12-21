@@ -20,6 +20,17 @@ const float pi = 3.14159265358979323846;
 #define sstep(x, low, high) smoothstep(low, high, x)
 #define saturate(x) clamp(x, 0.0, 1.0)
 #define finv(x) (1.0-x)
+#define ircp(x) (1.0 / x)
+
+float rcp(float x) {
+    return ircp(x);
+}
+vec2 rcp(vec2 x) {
+    return ircp(x);
+}
+vec3 rcp(vec3 x) {
+    return ircp(x);
+}
 
 float pow2(float x) {
     return x*x;
