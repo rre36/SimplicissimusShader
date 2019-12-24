@@ -18,8 +18,6 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 varying float star;
 
-varying float timeNoon;
-varying float timeNight;
 varying float timeMoon;
 
 varying vec4 tint;
@@ -34,6 +32,8 @@ varying vec3 uvec;
 varying vec3 skycol;
 varying vec3 suncol;
 varying vec3 fogcol;
+
+uniform vec4 daytime;
 
 uniform sampler2D gaux1;
 
@@ -52,7 +52,7 @@ vec3 getSky() {
 
     float hgrad = 1.0-max(hbot, htop);
 
-    float horizon = lin_step(hgrad, 0.12, 0.31);
+    float horizon = lin_step(hgrad, 0.12, 0.30);
         horizon = pow6(horizon);
 
     float sgrad = 1.0-dot(sgvec, nfrag);
@@ -62,15 +62,15 @@ vec3 getSky() {
         sglow   = pow6(sglow)*0.5;
 
     float shglow = lin_step(sgrad, 0.0, 0.99);
-        shglow  = pow3(shglow)*(hfade+horizon)*finv(timeMoon)*finv(timeNoon*0.8);
+        shglow  = pow3(shglow)*(hfade+horizon)*finv(timeMoon)*finv(daytime.y*0.8);
 
-    vec3 sky    = skycol;
+    vec3 sky    = skycol * 0.75;
         sky     = mix(sky, fogcol, hfade*0.75);
         sky     = mix(sky, fogcol, horizon*0.8);
         sky    *= pow3(1.0-saturate(shglow));
         sky    += suncol*shglow*6.0;
         sky    += suncol*sglow;
-        sky    += float(star)*timeNight*pow4(finv(max(hfade, horizon)));
+        sky    += float(star)*daytime.w*pow4(finv(max(hfade, horizon)));
 
     return sky;
 }
@@ -113,7 +113,7 @@ vec3 clouds(vec3 scenecol) {
 
         vec3 color      = suncol*(phase1*0.5+0.25);
             color      += (skycol+fogcol*0.6)*0.15;
-            color       = mix(color, vec3(0.45, 0.4, 1.0)*0.02, timeNight);
+            color       = mix(color, vec3(0.45, 0.4, 1.0)*0.02, daytime.w);
 
         scenecol       *= 1.0-cloud*0.2;
         scenecol       += color*cloud*0.3;

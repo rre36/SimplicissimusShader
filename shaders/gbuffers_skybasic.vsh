@@ -36,23 +36,25 @@ uniform vec3 upPosition;
 uniform vec3 skyColor;
 uniform vec3 fogColor;
 
+uniform vec4 daytime;
+
 uniform mat4 gbufferModelView;
 uniform mat4 gbufferModelViewInverse;
 
 #include "lib/time.glsl"
 
-vec4 position;
-
-void repackPos() {
-    position = gl_ProjectionMatrix * (gbufferModelView * position);
-}
-
 void main() {
-	position 	= (gl_ModelViewMatrix*gl_Vertex);
-    vpos 		= position.xyz;
-    position 	= gbufferModelViewInverse*position;
-	wpos 		= position.xyz;
-	repackPos();
+	vec4 position 	= gl_Vertex;
+		position 	= viewMAD(gl_ModelViewMatrix, position.xyz).xyzz;
+    	vpos 		= position.xyz;
+
+    	position.xyz = viewMAD(gbufferModelViewInverse, position.xyz);
+		wpos 		= position.xyz;
+
+		position.xyz = viewMAD(gbufferModelView, position.xyz);
+
+		position     = position.xyzz * diag4(gl_ProjectionMatrix) + vec4(0.0, 0.0, gl_ProjectionMatrix[3].z, 0.0);
+
 	gl_Position = position;
 	tint = gl_Color;
 
@@ -60,24 +62,24 @@ void main() {
 	mvec 		= normalize(moonPosition);
 	uvec 		= normalize(upPosition);
 
-	daytime();
+	get_daytime();
 
 	skycol 		= pow(skyColor, vec3(2.2));
 
 	vec3 fsunrise 	= vec3(1.0, 0.6, 0.5)*2.0;
-	vec3 fnoon 		= pow(fogColor, vec3(2.2))*3.0;
+	vec3 fnoon 		= pow(fogColor, vec3(2.2))*2.5;
 	vec3 fsunset 	= vec3(0.9, 0.6, 0.8);
 	vec3 fnight 	= vec3(0.25, 0.3, 1.0)*0.1;
 
-	fogcol 		= fsunrise*timeSunrise + fnoon*timeNoon + fsunset*timeSunset + fnight*timeNight;
+	fogcol 		= fsunrise*daytime.x + fnoon*daytime.y + fsunset*daytime.z + fnight*daytime.w;
 
 	vec3 sunlightSunrise 	= vec3(1.0, 0.13, 0.03);
 	vec3 sunlightNoon 		= vec3(1.0, 1.0, 1.0);
 	vec3 sunlightSunset 	= vec3(1.0, 0.1, 0.02);
 	vec3 sunlightNight 		= vec3(1.0, 0.05, 0.01)*0.2;
 
-    suncol = timeSunrise*sunlightSunrise + timeNoon*sunlightNoon + timeSunset*sunlightSunset + timeNight*sunlightNight;
-	suncol *= 2.0;
+    suncol = daytime.x*sunlightSunrise + daytime.y*sunlightNoon + daytime.z*sunlightSunset + daytime.w*sunlightNight;
+	suncol *= 1.5;
 
 	float isStar = float(gl_Color.r == gl_Color.g && gl_Color.g == gl_Color.b && gl_Color.r > 0.0);
 

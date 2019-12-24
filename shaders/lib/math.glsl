@@ -13,9 +13,10 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 const float pi = 3.14159265358979323846;
 
-#define diag3(m) vec3((m)[0].x, (m)[1].y, m[2].z)
-#define projMAD(m, v) (diag3(m) * (v) + (m)[3].xyz)
 #define viewMAD(m, v) (mat3(m) * (v) + (m)[3].xyz)
+#define diag3(m) vec3((m)[0].x, (m)[1].y, m[2].z)
+#define diag4(mat) vec4(diag3(mat), (mat)[2].w)
+#define projMAD(m, v) (diag3(m) * (v) + (m)[3].xyz)
 
 #define sstep(x, low, high) smoothstep(low, high, x)
 #define saturate(x) clamp(x, 0.0, 1.0)

@@ -19,9 +19,45 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 #include "/lib/common.glsl"
 
+//#define bloom
+
 uniform sampler2D colortex0;
 
 varying vec2 coord;
+
+#ifdef bloom
+const float bloomIntensity  = 0.004;
+
+uniform sampler2D colortex2;
+
+uniform float viewHeight;
+uniform float viewWidth;
+
+float vec3avg(vec3 x) {
+    return (x.x+x.y+x.z)/3.0;
+}
+
+vec3 bloomExpand(vec3 x) {
+    return x * x * x * x * 16.0;
+}
+
+vec3 get_bloom() {
+    vec3 blur1 = bloomExpand(texture2D(colortex2,coord.xy/pow(2.0,2.0) + vec2(0.0,0.0)).rgb);
+    vec3 blur2 = bloomExpand(texture2D(colortex2,coord.xy/pow(2.0,3.0) + vec2(0.3,0.0)).rgb)*0.95;
+    vec3 blur3 = bloomExpand(texture2D(colortex2,coord.xy/pow(2.0,4.0) + vec2(0.0,0.3)).rgb)*0.9;
+    vec3 blur4 = bloomExpand(texture2D(colortex2,coord.xy/pow(2.0,5.0) + vec2(0.1,0.3)).rgb)*0.85;
+    vec3 blur5 = bloomExpand(texture2D(colortex2,coord.xy/pow(2.0,6.0) + vec2(0.2,0.3)).rgb)*0.8;
+    vec3 blur6 = bloomExpand(texture2D(colortex2,coord.xy/pow(2.0,7.0) + vec2(0.3,0.3)).rgb)*0.75;
+    vec3 blur7 = bloomExpand(texture2D(colortex2,coord.xy/pow(2.0,8.0) + vec2(0.4,0.3)).rgb)*0.7;
+	
+    vec3 blur = (blur1 + blur2 + blur3 + blur4 + blur5 + blur6 + blur7);
+    float blurLuma = vec3avg(blur);
+    blur *= blurLuma*blurLuma;
+
+    return blur/7.0;
+}
+
+#endif
 
 float bayer2(vec2 a){
     a = floor(a);
@@ -32,18 +68,17 @@ float bayer2(vec2 a){
 #define bayer16(a)  (bayer8( .5*(a))*.25+bayer2(a))
 
 vec3 reinhardTonemap(vec3 hdr){     //based off jodie's approach
-    vec3 sdr   	= hdr*0.13;
+    vec3 sdr   	= hdr * 0.7;
     float luma  = dot(sdr, vec3(0.2126, 0.7152, 0.0722));
 
-	const float lumCoeff = 0.1;
-	const float lumCoeff2 = 0.13;
+	float coeff = 0.4;
 
 	//sdr 		= pow(sdr, vec3(0.98));
-    vec3 color  = sdr/(sdr + lumCoeff);
+    vec3 color  = sdr/(sdr + coeff);
 
-    	sdr   	= mix(sdr/(luma + lumCoeff2), color, color);
+    	sdr   	= mix(sdr/(luma + coeff), color, color);
 
-	return sdr*1.0;
+	return sdr;
 }
 
 int getColorBit() {
@@ -80,7 +115,15 @@ vec3 imageDither(vec3 color) {
 void main() {
 	vec3 scenecol 		= texture2D(colortex0, coord).rgb;
 		scenecol 		= decompressHDR(scenecol.rgb);
+
+	#ifdef bloom
+		scenecol 	   += get_bloom()*bloomIntensity;
+	#endif
+
+		//if (scenecol.r > 2.0) scenecol.rgb = vec3(0.0, 40.0, 0.0);
+		//else if (scenecol.r < 1.0) scenecol.rgb = vec3(40.0, 0.0, 0.0);
 		scenecol 		= reinhardTonemap(scenecol);
+		//if (scenecol.r > 0.9) scenecol.rgb = vec3(1.0, 0.0, 0.0);
 		scenecol 		= pow(scenecol, vec3(1.0/2.2));	//convert color back to display gamma
 		scenecol 		= imageDither(scenecol);
 

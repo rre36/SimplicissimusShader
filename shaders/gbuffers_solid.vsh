@@ -56,9 +56,18 @@ uniform vec3 fogColor;
 uniform vec3 sunPosition;
 uniform vec3 lightvec;
 
-vec4 position;
+uniform vec3 cameraPosition;
 
-#include "/lib/terrain/transform.glsl"
+uniform vec4 daytime;
+
+uniform mat4 gbufferProjectionInverse;
+uniform mat4 gbufferModelView;
+uniform mat4 gbufferModelViewInverse;
+uniform mat4 shadowProjection;
+uniform mat4 shadowProjectionInverse;
+uniform mat4 shadowModelView;
+uniform mat4 shadowModelViewInverse;
+
 #include "/lib/shadowmap.glsl"
 
 #define wind_effects
@@ -112,38 +121,43 @@ vec3 getShadowCoordinate(vec3 vpos, float bias) {
 void main() {
 	//essential vertex setup
 	tint 	= gl_Color;
+	tint.rgb = pow(tint.rgb, vec3(2.2));
 	coord 	= (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;	
 	lmap 	= (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	
-	position 	= (gl_ModelViewMatrix*gl_Vertex);
-    vpos 		= position.xyz;
+	vec4 position 	= gl_Vertex;
+		position 	= viewMAD(gl_ModelViewMatrix, position.xyz).xyzz;
+    	vpos 		= position.xyz;
 
-    position 	= gbufferModelViewInverse*position;
-	cpos 		= position.xyz;
-    position.xyz += cameraPosition.xyz;
-	wpos = position.xyz;
+    	position.xyz = viewMAD(gbufferModelViewInverse, position.xyz);
+		cpos 		= position.xyz;
+		position.xyz += cameraPosition;
+		wpos = position.xyz;
 
 	#ifdef terrain
-	#ifdef wind_effects
-		bool top_vertex 	= gl_MultiTexCoord0.t < mc_midTexCoord.t;
-		if ((mc_Entity.x == 6.0 ||
-		 mc_Entity.x == 31.0 ||
-		 mc_Entity.x == 38.0 ||
-		 mc_Entity.x == 59.0 ||
-		 mc_Entity.x == 141.0 ||
-		 mc_Entity.x == 142.0 ||
-		 mc_Entity.x == 600.0 )
-		 && top_vertex) position.xyz += get_wind(wpos);
+		#ifdef wind_effects
+			bool top_vertex 	= gl_MultiTexCoord0.t < mc_midTexCoord.t;
+			if ((mc_Entity.x == 6.0 ||
+			mc_Entity.x == 31.0 ||
+			mc_Entity.x == 38.0 ||
+			mc_Entity.x == 59.0 ||
+			mc_Entity.x == 141.0 ||
+			mc_Entity.x == 142.0 ||
+			mc_Entity.x == 600.0 )
+			&& top_vertex) position.xyz += get_wind(wpos);
 
-		if (mc_Entity.x == 240.0 && top_vertex) position.xyz += get_wind(wpos)*0.5;
-		if (mc_Entity.x == 241.0) position.xyz += get_wind(wpos)*(float(top_vertex)*0.5+0.5);
+			if (mc_Entity.x == 240.0 && top_vertex) position.xyz += get_wind(wpos)*0.5;
+			if (mc_Entity.x == 241.0) position.xyz += get_wind(wpos)*(float(top_vertex)*0.5+0.5);
 
-		if (mc_Entity.x == 18.0 ||
-		 mc_Entity.x == 161.0) position.xyz += get_wind(wpos)*0.2;
+			if (mc_Entity.x == 18.0 ||
+			mc_Entity.x == 161.0) position.xyz += get_wind(wpos)*0.2;
+		#endif
 	#endif
-	#endif
+		position.xyz -= cameraPosition;
 
-	repackPos();
+		position.xyz = viewMAD(gbufferModelView, position.xyz);
+
+		position     = position.xyzz * diag4(gl_ProjectionMatrix) + vec4(0.0, 0.0, gl_ProjectionMatrix[3].z, 0.0);
 
 	#ifdef taa_enabled
 		position.xy += taaOffset*position.w;
@@ -166,7 +180,7 @@ void main() {
 
 	spos 	= getShadowCoordinate(vpos, 0.08 * (2048.0 / shadowMapResolution));
 
-	daytime();
+	get_daytime();
 
 	//colors
 	vec3 sunlightSunrise 	= vec3(1.0, 0.33, 0.03);
@@ -174,23 +188,23 @@ void main() {
 	vec3 sunlightSunset 	= vec3(1.0, 0.3, 0.02);
 	vec3 sunlightNight 		= vec3(0.3, 0.4, 1.0)*0.15;
 
-    sunlightColor = timeSunrise*sunlightSunrise + timeNoon*sunlightNoon + timeSunset*sunlightSunset + timeNight*sunlightNight;
-	sunlightColor *= 2.0;
+    sunlightColor = daytime.x*sunlightSunrise + daytime.y*sunlightNoon + daytime.z*sunlightSunset + daytime.w*sunlightNight;
+	sunlightColor *= 1.5;
 
 	vec3 skylightSunrise 	= vec3(0.5, 0.75, 1.0)*0.6;
 	vec3 skylightNoon 		= vec3(1.0, 1.0, 1.0);
 	vec3 skylightSunset 	= vec3(0.5, 0.75, 1.0)*0.6;
 	vec3 skylightNight 		= vec3(0.25, 0.3, 1.0)*0.2;
 
-    skylightColor = timeSunrise*skylightSunrise + timeNoon*skylightNoon + timeSunset*skylightSunset + timeNight*skylightNight;
-	skylightColor *= 0.2;
+    skylightColor = daytime.x*skylightSunrise + daytime.y*skylightNoon + daytime.z*skylightSunset + daytime.w*skylightNight;
+	skylightColor *= 0.15;
 
 	vec3 fsunrise 	= vec3(1.0, 0.6, 0.5)*2.0;
-	vec3 fnoon 		= pow(fogColor, vec3(2.2))*3.0;
+	vec3 fnoon 		= pow(fogColor, vec3(2.2))*2.5;
 	vec3 fsunset 	= vec3(0.9, 0.6, 0.8);
 	vec3 fnight 	= vec3(0.25, 0.3, 1.0)*0.1;
 
-	fogcol 		= fsunrise*timeSunrise + fnoon*timeNoon + fsunset*timeSunset + fnight*timeNight;
+	fogcol 		= fsunrise*daytime.x + fnoon*daytime.y + fsunset*daytime.z + fnight*daytime.w;
 
 	torchlightColor = vec3(1.0, 0.9, 0.8);
 

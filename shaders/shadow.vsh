@@ -60,34 +60,39 @@ uniform mat4 shadowModelViewInverse;
 
 void main() {
     vec4 position   = gl_Vertex;
-        position        = gl_ProjectionMatrix*gl_ModelViewMatrix*position;
+        position    = gl_ModelViewMatrix*position;
 
     #ifdef wind_effects
-    position = shadowProjectionInverse * position;
-    position = shadowModelViewInverse * position;
-    position.xyz += cameraPosition.xyz;
+		position.xyz = viewMAD(shadowModelViewInverse, position.xyz);
 
-		bool top_vertex 	= gl_MultiTexCoord0.t < mc_midTexCoord.t;
-		if ((mc_Entity.x == 6.0 ||
-		 mc_Entity.x == 31.0 ||
-		 mc_Entity.x == 38.0 ||
-		 mc_Entity.x == 59.0 ||
-		 mc_Entity.x == 141.0 ||
-		 mc_Entity.x == 142.0 ||
-		 mc_Entity.x == 600.0 )
-		 && top_vertex) position.xyz += get_wind(position.xyz);
+		bool windLod    = length(position.xz) < 64.0;
 
-		if (mc_Entity.x == 240.0 && top_vertex) position.xyz += get_wind(position.xyz)*0.5;
-		if (mc_Entity.x == 241.0) position.xyz += get_wind(position.xyz)*(float(top_vertex)*0.5+0.5);
+		if (windLod) {
+			position.xyz += cameraPosition.xyz;
 
-		if (mc_Entity.x == 18.0 ||
-		 mc_Entity.x == 161.0) position.xyz += get_wind(position.xyz)*0.2;
+			bool top_vertex 	= gl_MultiTexCoord0.t < mc_midTexCoord.t;
+			if ((mc_Entity.x == 6.0 ||
+			mc_Entity.x == 31.0 ||
+			mc_Entity.x == 38.0 ||
+			mc_Entity.x == 59.0 ||
+			mc_Entity.x == 141.0 ||
+			mc_Entity.x == 142.0 ||
+			mc_Entity.x == 600.0 )
+			&& top_vertex) position.xyz += get_wind(position.xyz);
 
-        
-    position.xyz -= cameraPosition.xyz;
-    position = shadowModelView * position;
-    position = shadowProjection * position;
+			if (mc_Entity.x == 240.0 && top_vertex) position.xyz += get_wind(position.xyz)*0.5;
+			if (mc_Entity.x == 241.0) position.xyz += get_wind(position.xyz)*(float(top_vertex)*0.5+0.5);
+
+			if (mc_Entity.x == 18.0 ||
+			mc_Entity.x == 161.0) position.xyz += get_wind(position.xyz)*0.2;
+			
+			position.xyz -= cameraPosition.xyz;
+		}
+
+		position.xyz = viewMAD(shadowModelView, position.xyz);
     #endif
+
+	position = gl_ProjectionMatrix * position;
 
     //position        = gl_ProjectionMatrix*gl_ModelViewMatrix*position;
 

@@ -16,9 +16,7 @@ Violating these terms may be penalized with actions according to the Digital Mil
 #include "/lib/math.glsl"
 #include "/lib/common.glsl"
 
-varying float timeNoon;
 varying float timeMoon;
-varying float timeNight;
 
 varying vec4 tint;
 varying vec2 coord;
@@ -34,6 +32,8 @@ varying vec3 uvec;
 varying vec3 skycol;
 varying vec3 suncol;
 varying vec3 fogcol;
+
+uniform vec4 daytime;
 
 uniform float far;
 uniform sampler2D tex;
@@ -53,7 +53,7 @@ vec3 getSky() {
 
     float hgrad = 1.0-max(hbot, htop);
 
-    float horizon = lin_step(hgrad, 0.12, 0.31);
+    float horizon = lin_step(hgrad, 0.12, 0.30);
         horizon = pow6(horizon);
 
     float sgrad = 1.0-dot(sgvec, nfrag);
@@ -63,9 +63,9 @@ vec3 getSky() {
         sglow   = pow6(sglow)*0.5;
 
     float shglow = lin_step(sgrad, 0.0, 0.99);
-        shglow  = pow3(shglow)*(hfade+horizon)*finv(timeMoon)*finv(timeNoon*0.8);
+        shglow  = pow3(shglow)*(hfade+horizon)*finv(timeMoon)*finv(daytime.y*0.8);
 
-    vec3 sky    = skycol;
+    vec3 sky    = skycol * 0.75;
         sky     = mix(sky, fogcol, hfade*0.75);
         sky     = mix(sky, fogcol, horizon*0.8);
         sky    *= pow3(1.0-saturate(shglow));
@@ -86,7 +86,7 @@ vec3 getFog(vec3 color){
 }
 
 vec3 cloudShading(vec3 color) {
-	if (timeNight<1.0) {
+	if (daytime.w<1.0) {
 		float lambert 	= dot(normal, svec);
 		float vdotl 	= dot(normalize(vpos), svec)*0.5+0.5;
 		float phase1 	= pow6(saturate(vdotl))*1.2;
@@ -100,7 +100,7 @@ vec3 cloudShading(vec3 color) {
 
 		color0  += (skycol+fogcol*0.6)*(sqrt(saturate(lambertu))*0.85+0.15);
 
-		return mix(color0, color, timeNight);
+		return mix(color0, color, daytime.w);
 	} else {
 		return color;
 	}

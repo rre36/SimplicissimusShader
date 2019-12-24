@@ -28,8 +28,6 @@ uniform sampler2D lightmap;
 
 varying float noDiffuse;
 
-varying float timeSunrise;
-varying float timeSunset;
 varying float timeLightTransition;
 
 varying vec2 coord;
@@ -48,6 +46,8 @@ varying vec3 torchlightColor;
 varying vec3 fogcol;
 
 varying vec4 tint;
+
+uniform vec4 daytime;
 
 uniform mat4 gbufferModelViewInverse;
 
@@ -109,7 +109,7 @@ vec3 getFog(vec3 color){
 	float sgrad = 1.0-dot(sgvec, nfrag);
 	float sglow = lin_step(sgrad, 0.1, 0.99);
         sglow   = pow4(sglow);
-		sglow  *= timeSunrise+timeSunset;
+		sglow  *= daytime.x+daytime.z;
 
 	float dist 	= length(cpos)/far;
 		dist 	= max((dist-fogStart)*1.25, 0.0);
@@ -210,14 +210,14 @@ float get_specGGX(vec3 normal, vec3 svec, vec2 material) {
 }
 
 void main() {
-	vec4 scenecol 	= texture2D(tex, coord)*vec4(tint.rgb, 1.0);
+	vec4 scenecol 	= texture2D(tex, coord);
 	vec3 scenenormal = normal;
 
 	#ifndef translucency
 		if(scenecol.a < 0.1) discard;
 	#endif
 
-		scenecol.rgb = pow(scenecol.rgb, vec3(2.2));
+		scenecol.rgb = pow(scenecol.rgb, vec3(2.3)) * tint.rgb;
 
 
 	#ifdef labpbr_enabled

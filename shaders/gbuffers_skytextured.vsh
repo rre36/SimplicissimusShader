@@ -16,11 +16,14 @@ Violating these terms may be penalized with actions according to the Digital Mil
 varying vec4 color;
 varying vec4 texcoord;
 
+uniform vec4 daytime;
+
 void main() {
 	gl_Position = ftransform();
 	
 	color = gl_Color;
 	color.rgb 	= pow(color.rgb, vec3(2.2));
+	color.rgb *= 1.0 + daytime.y * 2.5;
 	
 	texcoord = gl_TextureMatrix[0] * gl_MultiTexCoord0;
 
