@@ -199,9 +199,9 @@ void main() {
     skylightColor = daytime.x*skylightSunrise + daytime.y*skylightNoon + daytime.z*skylightSunset + daytime.w*skylightNight;
 	skylightColor *= 0.15;
 
-	vec3 fsunrise 	= vec3(1.0, 0.6, 0.5)*2.0;
-	vec3 fnoon 		= pow(fogColor, vec3(2.2))*2.5;
-	vec3 fsunset 	= vec3(0.9, 0.6, 0.8);
+	vec3 fsunrise 	= vec3(1.0, 0.6, 0.5) * 2.0;
+	vec3 fnoon 		= pow(fogColor, vec3(2.2)) * 2.0;
+	vec3 fsunset 	= vec3(0.9, 0.6, 0.8) * 1.3;
 	vec3 fnight 	= vec3(0.25, 0.3, 1.0)*0.1;
 
 	fogcol 		= fsunrise*daytime.x + fnoon*daytime.y + fsunset*daytime.z + fnight*daytime.w;

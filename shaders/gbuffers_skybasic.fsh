@@ -64,7 +64,7 @@ vec3 getSky() {
     float shglow = lin_step(sgrad, 0.0, 0.99);
         shglow  = pow3(shglow)*(hfade+horizon)*finv(timeMoon)*finv(daytime.y*0.8);
 
-    vec3 sky    = skycol * 0.75;
+    vec3 sky    = skycol * 0.8;
         sky     = mix(sky, fogcol, hfade*0.75);
         sky     = mix(sky, fogcol, horizon*0.8);
         sky    *= pow3(1.0-saturate(shglow));
