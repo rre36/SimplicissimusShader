@@ -26,7 +26,7 @@ uniform sampler2D colortex0;
 varying vec2 coord;
 
 #ifdef bloom
-const float bloomIntensity  = 0.004;
+const float bloomIntensity  = 0.0025;
 
 uniform sampler2D colortex2;
 
