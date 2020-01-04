@@ -143,7 +143,7 @@ vec3 getShadowCoordinate() {
 		position   += vec3(bias)*lightvec;
 		position 	= viewMAD(shadowModelView, position);
 		position 	= projMAD(shadowProjection, position);
-		position.z -= 0.0007;
+		position.z -= 0.05 * (1.0 / float(pixel_shadow_res));
 
 		position.z *= 0.2;
 		warpShadowmap(position.xy);
