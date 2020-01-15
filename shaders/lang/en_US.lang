@@ -19,6 +19,8 @@ value.fogIntensity.0=Off
 option.fogStart=Fog Start
 option.bloom=Bloom
 option.useMotionblur=Motionblur
+option.promoOutline_enabled=Promo Outline
+option.promoOutline_enabled.comment=From CaptTatsu's BSL Shaders with permission
 
 option.cloud_twolayer=Cloud Instance Layer
 option.cloud_twolayer.comment=This causes some weirdness when being above the regular cloud layer but below the instanced one.
