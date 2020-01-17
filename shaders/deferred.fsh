@@ -77,7 +77,7 @@ void main() {
     #ifdef promoOutline_enabled
 		scenecolor 		= decompressHDR(scenecolor.rgb);
 		scenecolor 	    = pow(scenecolor, vec3(0.25));
-		scenecolor 	   *= promooutline(depthtex1);
+		scenecolor 	   *= max(promooutline(depthtex1), 0.95);
 		scenecolor 		= pow(scenecolor, vec3(4.0));
 		scenecolor 	    = compressHDR(scenecolor.rgb);
     #endif
