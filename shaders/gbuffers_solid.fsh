@@ -138,7 +138,9 @@ vec3 getShadowCoordinate() {
 	vec3 decode_lab_nrm(vec3 ntex, inout float ao) {
 		ntex    = ntex * 2.0 - (254.0 * rcp(255.0));
 
-		ao     *= pow2(length(ntex));
+        ao     *= ntex.z;
+
+        ntex.z  = sqrt(saturate(1.0 - dot(ntex.xy, ntex.xy)));
 
 		ntex    = normalize(ntex);
 
@@ -148,6 +150,7 @@ vec3 getShadowCoordinate() {
 	#ifdef normalmap_enabled
 	vec3 decode_nrm(vec3 ntex) {
 		ntex    = ntex * 2.0 - (254.0 * rcp(255.0));
+        ntex.z  = sqrt(saturate(1.0 - dot(ntex.xy, ntex.xy)));
 
 		ntex    = normalize(ntex);
 
