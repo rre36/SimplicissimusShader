@@ -283,7 +283,7 @@ void main() {
 	#ifdef isHand
 		vec4 ret1 	= vec4(1.0, 0.0, 0.0, 1.0);
 	#else
-		vec4 ret1 	= vec4(0.0, 0.0, 0.0, 1.0);
+		vec4 ret1 	= vec4(0.3, 0.0, 0.0, 1.0);
 	#endif
 
     #ifndef translucency

@@ -19,6 +19,7 @@ Violating these terms may be penalized with actions according to the Digital Mil
 #define fogIntensity 1.0 //[0 0.2 0.4 0.6 0.8 1.0]
 
 uniform sampler2D colortex0;    //scene color
+uniform sampler2D colortex2;
 uniform sampler2D colortex3;
 
 uniform sampler2D depthtex0;
@@ -66,10 +67,12 @@ void main() {
 	vec3 scenecol 		= texture2D(colortex0, coord).rgb;
 		scenecol 		= decompressHDR(scenecol.rgb);
 
+    float matID         = texture2D(colortex2, coord).x;
+
     float scenedepth0   = texture2D(depthtex0, coord).x;
     float scenedepth1   = texture2D(depthtex1, coord).x;
 
-    if (scenedepth0 != 1.0) {
+    if (scenedepth0 != 1.0 && matID > 0.01) {
         vec3 viewpos0       = screenSpaceToViewSpace(vec3(coord, scenedepth0), gbufferProjectionInverse);
         vec3 scenepos0      = viewSpaceToSceneSpace(viewpos0, gbufferModelViewInverse);
 

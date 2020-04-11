@@ -25,6 +25,7 @@ const int colortex3Format   = RGBA16;
 */
 
 uniform sampler2D colortex0;
+uniform sampler2D colortex2;
 uniform sampler2D depthtex1;
 
 const float shadowDistance      = 128.0;
@@ -76,11 +77,16 @@ float promooutline(sampler2D depth){
 void main() {
 	vec3 scenecolor 	= texture2D(colortex0, coord).rgb;
     #ifdef promoOutline_enabled
+
+    float matID         = texture2D(colortex2, coord).x;
+
+    if (matID > 0.01) {
 		scenecolor 		= decompressHDR(scenecolor.rgb);
 		scenecolor 	    = pow(scenecolor, vec3(0.25));
 		scenecolor 	   *= max(promooutline(depthtex1), 0.95);
 		scenecolor 		= pow(scenecolor, vec3(4.0));
 		scenecolor 	    = compressHDR(scenecolor.rgb);
+    }
     #endif
     
 	/*DRAWBUFFERS:0*/
