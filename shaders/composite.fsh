@@ -50,7 +50,7 @@ vec3 getFog(vec3 color, vec3 scenepos, vec3 viewpos){
 	vec3 sgvec  = normalize(sunvecView+nfrag);
 
 	float sgrad = 1.0-dot(sgvec, nfrag);
-	float sglow = lin_step(sgrad, 0.1, 0.99);
+	float sglow = linStep(sgrad, 0.1, 0.99);
         sglow   = pow4(sglow);
 		sglow  *= daytime.x+daytime.z;
 

@@ -42,7 +42,7 @@ void main() {
 	vec3 sunlightNight 		= vec3(0.3, 0.4, 1.0)*0.15;
 
     sunlightColor = daytime.x*sunlightSunrise + daytime.y*sunlightNoon + daytime.z*sunlightSunset + daytime.w*sunlightNight;
-	sunlightColor *= 1.5;
+	sunlightColor *= 1.5 * sunlight_luma;
 
 	vec3 skylightSunrise 	= vec3(0.5, 0.75, 1.0)*0.6;
 	vec3 skylightNoon 		= vec3(1.0, 1.0, 1.0);
@@ -50,7 +50,7 @@ void main() {
 	vec3 skylightNight 		= vec3(0.25, 0.3, 1.0)*0.2;
 
     skylightColor = daytime.x*skylightSunrise + daytime.y*skylightNoon + daytime.z*skylightSunset + daytime.w*skylightNight;
-	skylightColor *= 0.15;
+	skylightColor *= 0.15 * skylight_luma;
 
 	vec3 fsunrise 	= vec3(1.0, 0.6, 0.5) * 2.0;
 	vec3 fnoon 		= pow(fogColor, vec3(2.2)) * 2.0;

@@ -164,7 +164,7 @@ vec3 decode_lab(vec4 unpacked_tex, out bool is_metal) {
 
     unpacked_tex.w = unpacked_tex.w * 255.0;
 
-    mat_data.z  = unpacked_tex.w < 254.5 ? lin_step(unpacked_tex.w, 0.0, 254.0) : 0.0; //emission
+    mat_data.z  = unpacked_tex.w < 254.5 ? linStep(unpacked_tex.w, 0.0, 254.0) : 0.0; //emission
 
     is_metal    = (unpacked_tex.y * 255.0) > 229.5;
 

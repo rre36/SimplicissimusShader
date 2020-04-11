@@ -1,5 +1,5 @@
 option.info=Simplicissimus by RRe36
-value.info.0=v1.1
+value.info.0=v1.2
 
 option.shadowMapResolution=Shadowmap Resolution
 option.hq_shadows=Soft Shadows
@@ -17,10 +17,29 @@ option.wind_effects=Wind Effects
 option.fogIntensity=Fog Intensity
 value.fogIntensity.0=Off
 option.fogStart=Fog Start
-option.bloom=Bloom
 option.useMotionblur=Motionblur
 option.promoOutline_enabled=Promo Outline
 option.promoOutline_enabled.comment=From CaptTatsu's BSL Shaders with permission
+
+option.bloom=Bloom
+option.bloomIntensity=Intensity
+
+screen.colorgrade=Color Grading
+option.do_colorgrading=Color Grading
+option.vibrance_int=Vibrance
+option.saturation_int=Saturation
+option.gamma_curve=Gamma Curve
+option.brightness_int=Brightness
+option.constrast_int=Contrast
+option.colorlum_r=Red Gain
+option.colorlum_g=Green Gain
+option.colorlum_b=Blue Gain
+
+option.vignette_enabled=Vignette
+option.vignette_start=Inner Radius
+option.vignette_end=Outer Radius
+option.vignette_intensity=Intensity
+option.vignette_exponent=Falloff
 
 option.cloud_twolayer=Cloud Instance Layer
 option.cloud_twolayer.comment=This causes some weirdness when being above the regular cloud layer but below the instanced one.

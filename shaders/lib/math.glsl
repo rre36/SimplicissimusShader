@@ -62,12 +62,12 @@ float vec3avg(vec3 x) {
     return (x.r+x.g+x.b)/3.0;
 }
 
-float lin_step(float x, float low, float high) {
+float linStep(float x, float low, float high) {
     float t = saturate((x-low)/(high-low));
     return t;
 }
 
-vec3 lin_step(vec3 x, float low, float high) {
+vec3 linStep(vec3 x, float low, float high) {
     vec3 t = saturate((x-low)/(high-low));
     return t;
 }

@@ -48,21 +48,21 @@ vec3 getSky() {
     float htop  = dot(hvec0, nfrag);
     float hbot  = dot(hvec1, nfrag);
 
-    float hfade = lin_step(hbot, 0.3, 0.8);
+    float hfade = linStep(hbot, 0.3, 0.8);
         hfade   = pow6(hfade);
 
     float hgrad = 1.0-max(hbot, htop);
 
-    float horizon = lin_step(hgrad, 0.12, 0.30);
+    float horizon = linStep(hgrad, 0.12, 0.30);
         horizon = pow6(horizon);
 
     float sgrad = 1.0-dot(sgvec, nfrag);
     float mgrad = 1.0-dot(mgvec, nfrag);
 
-    float sglow = lin_step(sgrad, 0.5, 0.99);
+    float sglow = linStep(sgrad, 0.5, 0.99);
         sglow   = pow6(sglow)*0.5;
 
-    float shglow = lin_step(sgrad, 0.0, 0.99);
+    float shglow = linStep(sgrad, 0.0, 0.99);
         shglow  = pow3(shglow)*(hfade+horizon)*finv(timeMoon)*finv(daytime.y*0.8);
 
     vec3 sky    = skycol * 0.8;
@@ -117,6 +117,7 @@ void main() {
 
 	scenecol.rgb 	= compressHDR(scenecol.rgb);
 
-	/*DRAWBUFFERS:0*/
+	/*DRAWBUFFERS:02*/
 	gl_FragData[0] 	= scenecol;
+    gl_FragData[1] = vec4(0.0, 0.0, 0.0, 1.0);
 }
