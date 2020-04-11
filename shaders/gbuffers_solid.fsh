@@ -20,9 +20,6 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 const int shadowMapResolution   = 2560; 	//[512 1024 1536 2048 2560 3072 3584 4096 6144 8192]
 
-#define fogStart 0.2 	//[0.0 0.2 0.4 0.6 0.8]
-#define fogIntensity 1.0 //[0 0.2 0.4 0.6 0.8 1.0]
-
 uniform sampler2D tex;
 uniform sampler2D lightmap;
 
@@ -102,24 +99,6 @@ float getDiffuse(vec3 normal, vec3 lightvec) {
 	return lambert;
 }
 
-vec3 getFog(vec3 color){
-	vec3 nfrag  = -normalize(vpos);
-	vec3 sgvec  = normalize(svec+nfrag);
-
-	float sgrad = 1.0-dot(sgvec, nfrag);
-	float sglow = lin_step(sgrad, 0.1, 0.99);
-        sglow   = pow4(sglow);
-		sglow  *= daytime.x+daytime.z;
-
-	float dist 	= length(cpos)/far;
-		dist 	= max((dist-fogStart)*1.25, 0.0);
-	float alpha = 1.0-exp2(-dist);
-
-	color 	= mix(color, fogcol*finv(sglow)+sunlightColor*sglow*5.0, saturate(pow2(alpha))*fogIntensity);
-
-	return color;
-}
-
 //#define pixel_shadows
 #define pixel_shadow_res 32 	//[8 16 32 64 128 256]
 
@@ -138,11 +117,11 @@ uniform vec3 cameraPosition;
 vec3 getShadowCoordinate() {
 		float bias 	= 0.1;
 	vec3 position 	= vpos;
-		position 	= viewMAD(gbufferModelViewInverse, position);
+		position 	= transMAD(gbufferModelViewInverse, position);
 		position 	= floor((position + cameraPosition) * pixel_shadow_res) / pixel_shadow_res - cameraPosition;
 		position   += vec3(bias)*lightvec;
-		position 	= viewMAD(shadowModelView, position);
-		position 	= projMAD(shadowProjection, position);
+		position 	= transMAD(shadowModelView, position);
+		position 	= projMAD3(shadowProjection, position);
 		position.z -= 0.05 * (1.0 / float(pixel_shadow_res));
 
 		position.z *= 0.2;
@@ -299,8 +278,6 @@ void main() {
 		}
 	#endif
 
-    scenecol.rgb    = getFog(scenecol.rgb);
-
 	scenecol.rgb 	= compressHDR(scenecol.rgb);
 
 	#ifdef isHand
@@ -309,7 +286,13 @@ void main() {
 		vec4 ret1 	= vec4(0.0, 0.0, 0.0, 1.0);
 	#endif
 
+    #ifndef translucency
 	/*DRAWBUFFERS:02*/
 	gl_FragData[0] = scenecol;
 	gl_FragData[1] = ret1;
+    #else
+   	/*DRAWBUFFERS:32*/
+	gl_FragData[0] = scenecol;
+	gl_FragData[1] = ret1;
+    #endif
 }

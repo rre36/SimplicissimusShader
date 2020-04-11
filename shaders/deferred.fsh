@@ -21,6 +21,7 @@ Violating these terms may be penalized with actions according to the Digital Mil
 const int colortex0Format   = RGB16;
 const int colortex1Format   = RGB16;
 const int colortex2Format   = RGB16;
+const int colortex3Format   = RGBA16;
 */
 
 uniform sampler2D colortex0;

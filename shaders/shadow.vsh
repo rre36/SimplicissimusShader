@@ -63,7 +63,7 @@ void main() {
         position    = gl_ModelViewMatrix*position;
 
     #ifdef wind_effects
-		position.xyz = viewMAD(shadowModelViewInverse, position.xyz);
+		position.xyz = transMAD(shadowModelViewInverse, position.xyz);
 
 		bool windLod    = length(position.xz) < 64.0;
 
@@ -89,7 +89,7 @@ void main() {
 			position.xyz -= cameraPosition.xyz;
 		}
 
-		position.xyz = viewMAD(shadowModelView, position.xyz);
+		position.xyz = transMAD(shadowModelView, position.xyz);
     #endif
 
 	position = gl_ProjectionMatrix * position;

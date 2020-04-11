@@ -11,33 +11,21 @@ Violating these terms may be penalized with actions according to the Digital Mil
 */
 
 
-//screen-/viewspace position
-vec3 getScreenpos(float depth, vec2 coord) {
-    vec4 posNDC     = vec4(coord.x*2.0-1.0, coord.y*2.0-1.0, 2.0*depth-1.0, 1.0);
-        posNDC      = gbufferProjectionInverse*posNDC;
-    return posNDC.xyz/posNDC.w;
-}
+vec3 screenSpaceToViewSpace(vec3 screenPosition, mat4 projectionInverse, const bool taaAware) {
+	screenPosition = screenPosition * 2.0 - 1.0;
 
-//worldspace position
-vec3 getWorldpos(float depth, vec2 coord) {
-    vec3 posCamSpace    = getScreenpos(depth, coord).xyz;
-    vec3 posWorldSpace  = viewMAD(gbufferModelViewInverse, posCamSpace);
-    posWorldSpace.xyz  += cameraPosition.xyz;
-    return posWorldSpace;
-}
+    #ifdef taa_enabled
+        if (taaAware) screenPosition.xy -= taaOffset;
+    #endif
 
-//convert screenspace to worldspace
-vec3 toWorldpos(vec3 screenPos) {
-    vec3 posCamSpace    = screenPos;
-    vec3 posWorldSpace  = viewMAD(gbufferModelViewInverse, posCamSpace);
-    posWorldSpace.xyz  += cameraPosition.xyz;
-    return posWorldSpace;
-}
+	vec3 viewPosition  = vec3(vec2(projectionInverse[0].x, projectionInverse[1].y) * screenPosition.xy + projectionInverse[3].xy, projectionInverse[3].z);
+	     viewPosition /= projectionInverse[2].w * screenPosition.z + projectionInverse[3].w;
 
-//convert worldspace to screenspace
-vec3 toScreenpos(vec3 worldpos) {
-    vec3 posWorldSpace  = worldpos;
-    posWorldSpace.xyz  -= cameraPosition.xyz;
-    vec3 posCamSpace    = viewMAD(gbufferModelView, posWorldSpace);
-    return posCamSpace;
+	return viewPosition;
+}
+vec3 screenSpaceToViewSpace(vec3 screenPosition, mat4 projectionInverse) {
+    return screenSpaceToViewSpace(screenPosition, projectionInverse, true);
+}
+vec3 viewSpaceToSceneSpace(in vec3 viewPosition, in mat4 modelViewInverse) {
+    return mat3(modelViewInverse) * viewPosition + modelViewInverse[3].xyz;
 }

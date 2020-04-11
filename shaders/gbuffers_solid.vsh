@@ -104,10 +104,10 @@ attribute vec4 mc_Entity;
 
 vec3 getShadowCoordinate(vec3 vpos, float bias) {
 	vec3 position 	= vpos;
-		position 	= viewMAD(gbufferModelViewInverse, position);
+		position 	= transMAD(gbufferModelViewInverse, position);
 		position   += vec3(bias)*lightvec;
-		position 	= viewMAD(shadowModelView, position);
-		position 	= projMAD(shadowProjection, position);
+		position 	= transMAD(shadowModelView, position);
+		position 	= projMAD3(shadowProjection, position);
 		position.z -= 0.0007;
 
 		position.z *= 0.2;
@@ -126,13 +126,12 @@ void main() {
 	lmap 	= (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 	
 	vec4 position 	= gl_Vertex;
-		position 	= viewMAD(gl_ModelViewMatrix, position.xyz).xyzz;
+		position 	= transMAD(gl_ModelViewMatrix, position.xyz).xyzz;
     	vpos 		= position.xyz;
 
-    	position.xyz = viewMAD(gbufferModelViewInverse, position.xyz);
+    	position.xyz = transMAD(gbufferModelViewInverse, position.xyz);
 		cpos 		= position.xyz;
-		position.xyz += cameraPosition;
-		wpos = position.xyz;
+		wpos = position.xyz + cameraPosition;
 
 	#ifdef terrain
 		#ifdef wind_effects
@@ -153,11 +152,10 @@ void main() {
 			mc_Entity.x == 161.0) position.xyz += get_wind(wpos)*0.2;
 		#endif
 	#endif
-		position.xyz -= cameraPosition;
 
-		position.xyz = viewMAD(gbufferModelView, position.xyz);
+		position.xyz = transMAD(gbufferModelView, position.xyz);
 
-		position     = position.xyzz * diag4(gl_ProjectionMatrix) + vec4(0.0, 0.0, gl_ProjectionMatrix[3].z, 0.0);
+		position     = position.xyzz * diagonal4(gl_ProjectionMatrix) + vec4(0.0, 0.0, gl_ProjectionMatrix[3].z, 0.0);
 
 	#ifdef taa_enabled
 		position.xy += taaOffset*position.w;

@@ -45,15 +45,15 @@ uniform mat4 gbufferModelViewInverse;
 
 void main() {
 	vec4 position 	= gl_Vertex;
-		position 	= viewMAD(gl_ModelViewMatrix, position.xyz).xyzz;
+		position 	= transMAD(gl_ModelViewMatrix, position.xyz).xyzz;
     	vpos 		= position.xyz;
 
-    	position.xyz = viewMAD(gbufferModelViewInverse, position.xyz);
+    	position.xyz = transMAD(gbufferModelViewInverse, position.xyz);
 		wpos 		= position.xyz;
 
-		position.xyz = viewMAD(gbufferModelView, position.xyz);
+		position.xyz = transMAD(gbufferModelView, position.xyz);
 
-		position     = position.xyzz * diag4(gl_ProjectionMatrix) + vec4(0.0, 0.0, gl_ProjectionMatrix[3].z, 0.0);
+		position     = position.xyzz * diagonal4(gl_ProjectionMatrix) + vec4(0.0, 0.0, gl_ProjectionMatrix[3].z, 0.0);
 
 	gl_Position = position;
 	tint = gl_Color;

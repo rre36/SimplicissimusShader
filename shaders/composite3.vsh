@@ -13,4 +13,9 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 
 
-#include "/program/temporal.glsl"
+varying vec2 coord;
+
+void main() {
+    gl_Position     = ftransform();
+    coord           = gl_MultiTexCoord0.xy;
+}
