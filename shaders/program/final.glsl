@@ -165,10 +165,10 @@ void main() {
 		scenecol 		= decompressHDR(scenecol.rgb);
 
 	#ifdef bloom
-        #if dim == -1
-        scenecol 	   += getBloom() * 0.5 * bloomIntensity;
+        #ifdef dim
+            scenecol 	   += getBloom() * 0.5 * bloomIntensity;
         #else
-		scenecol 	   += getBloom() * 0.023 * bloomIntensity;
+		    scenecol 	   += getBloom() * 0.023 * bloomIntensity;
         #endif
 	#endif
 

@@ -11,5 +11,5 @@ These can be found inside the included license-file or here: https://rre36.githu
 Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
 */
 
-#define dim -1
+#define dim
 #include "/program/final.glsl"
