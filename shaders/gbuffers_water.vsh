@@ -14,4 +14,6 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 
 #define g_textured
+#define terrain
+#define translucency
 #include "gbuffers_solid.vsh"

@@ -18,6 +18,10 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 const int shadowMapResolution   = 2560; 	//[512 1024 1536 2048 2560 3072 3584 4096 6144 8192]
 
+#ifdef translucency
+varying float water;
+#endif
+
 varying float noDiffuse;
 
 varying vec2 coord;
@@ -151,6 +155,10 @@ void main() {
 			if (mc_Entity.x == 18.0 ||
 			mc_Entity.x == 161.0) position.xyz += get_wind(wpos)*0.2;
 		#endif
+
+        #ifdef translucency
+            water   = float(mc_Entity.x == 8 || mc_Entity.x == 9);
+        #endif
 	#endif
 
 		position.xyz = transMAD(gbufferModelView, position.xyz);

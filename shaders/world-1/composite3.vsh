@@ -11,4 +11,11 @@ These can be found inside the included license-file or here: https://rre36.githu
 Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
 */
 
-#include "/program/final.glsl"
+
+
+varying vec2 coord;
+
+void main() {
+    gl_Position     = ftransform();
+    coord           = gl_MultiTexCoord0.xy;
+}

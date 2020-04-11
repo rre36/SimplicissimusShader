@@ -14,9 +14,6 @@ Violating these terms may be penalized with actions according to the Digital Mil
 #include "/lib/math.glsl"
 #include "/lib/common.glsl"
 
-#define fogStart 0.2 	//[0.0 0.2 0.4 0.6 0.8]
-#define fogIntensity 1.0 //[0 0.2 0.4 0.6 0.8 1.0]
-
 uniform sampler2D tex;
 uniform sampler2D lightmap;
 
@@ -34,16 +31,6 @@ varying vec4 tint;
 
 uniform float far;
 
-vec3 getFog(vec3 color){
-	float dist 	= length(cpos)/far;
-		dist 	= max((dist-fogStart)*1.25, 0.0);
-	float alpha = 1.0-exp2(-dist);
-
-	color 	= mix(color, vec3(1.0, 0.14, 0.06)*0.3, saturate(pow2(alpha))*fogIntensity);
-
-	return color;
-}
-
 void main() {
 	vec4 scenecol 	= texture2D(tex, coord)*vec4(tint.rgb, 1.0);
 
@@ -54,8 +41,8 @@ void main() {
 		scenecol.rgb = pow(scenecol.rgb, vec3(2.2));
 
 	vec3 lmapcol 	= texture2D(lightmap, vec2(lmap.x, 0.0)).rgb;
-		lmapcol 	= pow(lmapcol, vec3(2.2));
-	vec3 lmaps 		= texture2D(lightmap, vec2(0.0, lmap.x)).rgb;
+		lmapcol 	= pow(lmapcol, vec3(2.2)) * vec3(1.2, 0.8, 0.6);
+	vec3 lmaps 		= texture2D(lightmap, vec2(0.0, lmap.y)).rgb;
 		lmaps 		= pow(lmapcol, vec3(2.2));
 
 	vec3 lighting 	= lmaps;
@@ -67,8 +54,6 @@ void main() {
     float ao        = pow2(tint.a);
     scenecol.rgb   *= ao;
     #endif
-
-    scenecol.rgb    = getFog(scenecol.rgb);
 
 	scenecol.rgb 	= compressHDR(scenecol.rgb);
 

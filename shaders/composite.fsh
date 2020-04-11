@@ -25,13 +25,19 @@ uniform sampler2D colortex3;
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
 
+uniform int isEyeInWater;
+
 uniform float far;
 
 uniform vec2 taaOffset;
 
+uniform vec3 fogColor;
 uniform vec3 sunvecView;
 
 uniform vec4 daytime;
+
+uniform mat4 gbufferProjectionInverse;
+uniform mat4 gbufferModelViewInverse;
 
 varying vec2 coord;
 
@@ -39,9 +45,6 @@ varying vec3 sunlightColor;
 varying vec3 skylightColor;
 varying vec3 torchlightColor;
 varying vec3 fogcol;
-
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferModelViewInverse;
 
 #include "/lib/transforms.glsl"
 
@@ -63,11 +66,25 @@ vec3 getFog(vec3 color, vec3 scenepos, vec3 viewpos){
 	return color;
 }
 
+vec3 getWaterFog(vec3 color, vec3 scenepos){
+	float dist 	= length(scenepos)/far;
+		dist 	= max((dist)*1.25, 0.0);
+	float alpha = 1.0-exp2(-dist * pi * 10.0);
+
+    vec3 fogcol = isEyeInWater == 1 ? pow(fogColor, vec3(2.0)) : skylightColor * vec3(0.05, 0.1, 0.9) * 0.35;
+
+	color 	= mix(color, fogcol, saturate((alpha)));
+
+	return color;
+}
+
 void main() {
 	vec3 scenecol 		= texture2D(colortex0, coord).rgb;
 		scenecol 		= decompressHDR(scenecol.rgb);
 
-    float matID         = texture2D(colortex2, coord).x;
+    vec4 tex2           = texture2D(colortex2, coord);
+
+    float matID         = tex2.x;
 
     float scenedepth0   = texture2D(depthtex0, coord).x;
     float scenedepth1   = texture2D(depthtex1, coord).x;
@@ -85,12 +102,17 @@ void main() {
             vec4 translucents   = texture2D(colortex3, coord);
                 translucents.rgb = decompressHDR(translucents.rgb);
 
+                if (tex2.g > 0.5 && isEyeInWater == 0) scenecol.rgb = getWaterFog(scenecol.rgb, (scenepos1 - scenepos0));
+                else if (scenedepth1 != 1.0) scenecol.rgb    = getFog(scenecol.rgb, (scenepos1 - scenepos0), viewpos1);
+
                 scenecol.rgb    = scenecol.rgb * (1.0 - translucents.a) + translucents.rgb;
 
                 scenecol.rgb    = getFog(scenecol.rgb, scenepos0, viewpos0);
         } else {
             scenecol.rgb    = getFog(scenecol.rgb, scenepos0, viewpos0);
         }
+
+        if (isEyeInWater == 1) scenecol.rgb = getWaterFog(scenecol.rgb, scenepos0);
     }
 
         scenecol 	    = compressHDR(scenecol.rgb);

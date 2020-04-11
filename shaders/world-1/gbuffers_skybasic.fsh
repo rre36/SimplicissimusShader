@@ -18,7 +18,7 @@ Violating these terms may be penalized with actions according to the Digital Mil
 varying vec4 tint;
 
 void main() {
-    vec4 scenecol       = vec4(1.0, 0.2, 0.1, 1.0);
+    vec4 scenecol       = vec4(vec3(1.0, 0.14, 0.06) * 0.3, 1.0);
 
 	scenecol.rgb 	= compressHDR(scenecol.rgb);
 

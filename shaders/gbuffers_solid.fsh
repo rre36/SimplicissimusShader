@@ -27,6 +27,10 @@ varying float noDiffuse;
 
 varying float timeLightTransition;
 
+#ifdef translucency
+varying float water;
+#endif
+
 varying vec2 coord;
 varying vec2 lmap;
 
@@ -296,6 +300,6 @@ void main() {
     #else
    	/*DRAWBUFFERS:32*/
 	gl_FragData[0] = scenecol;
-	gl_FragData[1] = ret1;
+	gl_FragData[1] = ret1 + vec4(0.0, water, 0.0, 0.0);
     #endif
 }
