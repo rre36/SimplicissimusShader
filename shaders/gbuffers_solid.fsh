@@ -167,7 +167,7 @@ vec3 decode_lab(vec4 unpacked_tex, out bool is_metal) {
 	vec3 mat_data = vec3(1.0, 0.0, 0.0);
 
     mat_data.x  = pow2(1.0 - unpacked_tex.x);   //roughness
-    mat_data.y  = pow2(unpacked_tex.y);         //f0
+    mat_data.y  = (unpacked_tex.y);         //f0
 
     unpacked_tex.w = unpacked_tex.w * 255.0;
 
