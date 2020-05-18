@@ -14,15 +14,15 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 
 varying vec4 color;
-varying vec4 texcoord;
-varying vec4 lmcoord;
+varying vec2 texcoord;
+varying vec2 lmcoord;
 
 void main() {
 	gl_Position = ftransform();
 	
 	color = gl_Color;
 	
-	texcoord = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+	texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 
-	lmcoord = gl_TextureMatrix[1] * gl_MultiTexCoord1;
+	lmcoord = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
 }

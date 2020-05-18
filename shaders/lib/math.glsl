@@ -71,3 +71,7 @@ vec3 linStep(vec3 x, float low, float high) {
     vec3 t = saturate((x-low)/(high-low));
     return t;
 }
+
+vec3 colorSaturation(vec3 x, float alpha) {
+    return mix(vec3(dot(x, vec3(1.0 / 3.0))), x, alpha);
+}
