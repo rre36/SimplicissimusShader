@@ -155,6 +155,7 @@ vec3 getShadowCoordinate() {
 #else
 	#ifdef normalmap_enabled
 	vec3 decode_nrm(vec3 ntex) {
+        if (floor(ntex * 256.0) == vec3(0.0)) return normal;
 		ntex    = ntex * 2.0 - (254.0 * rcp(255.0));
         ntex.z  = sqrt(saturate(1.0 - dot(ntex.xy, ntex.xy)));
 
