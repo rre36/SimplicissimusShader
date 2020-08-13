@@ -140,6 +140,8 @@ vec3 getShadowCoordinate() {
 
 #ifdef labpbr_enabled
 	vec3 decode_lab_nrm(vec3 ntex, inout float ao) {
+        if (floor(ntex * 256.0) == vec3(0.0)) return normal;
+
 		ntex    = ntex * 2.0 - (254.0 * rcp(255.0));
 
         if(any(greaterThan(ntex, vec3(0.003)))) ao *= ntex.z;   //thanks for this fix in ymir niemand
