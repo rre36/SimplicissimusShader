@@ -14,4 +14,5 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 
 #define g_textured
+#define g_entities
 #include "gbuffers_solid.fsh"

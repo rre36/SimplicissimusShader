@@ -18,6 +18,10 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 //#define hq_shadows
 
+#ifdef g_entities
+    //#define noEntityLab
+#endif
+
 const int shadowMapResolution   = 2560; 	//[512 1024 1536 2048 2560 3072 3584 4096 6144 8192]
 
 uniform sampler2D tex;
@@ -138,7 +142,7 @@ vec3 getShadowCoordinate() {
 
 /* ------ labPBR relevant stuff ------ */
 
-#ifdef labpbr_enabled
+#if (defined labpbr_enabled && !defined noEntityLab)
 	vec3 decode_lab_nrm(vec3 ntex, inout float ao) {
         if (floor(ntex * 256.0) == vec3(0.0)) return normal;
 
@@ -209,7 +213,7 @@ void main() {
 		scenecol.rgb = pow(scenecol.rgb, vec3(2.3)) * tint.rgb;
 
 
-	#ifdef labpbr_enabled
+	#if (defined labpbr_enabled && !defined noEntityLab)
 		//vec4 spectex    = texture(specular, coord);
 		//vec2 return1_zw = vec2(encode2x8(spectex.xy), encode2x8(spectex.zw));
 
@@ -269,7 +273,15 @@ void main() {
     scenecol.rgb   *= ao;
     #endif
 
-	#ifdef labpbr_enabled
+    #ifdef labpbr_enabled
+    /* - */
+    #endif
+
+    #ifdef noEntityLab
+    /* - */
+    #endif
+
+	#if (defined labpbr_enabled && !defined noEntityLab)
 		vec4 spectex = texture2D(specular, coord);
 
 		bool is_metal = false;
