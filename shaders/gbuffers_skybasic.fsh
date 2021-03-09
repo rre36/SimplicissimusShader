@@ -49,6 +49,7 @@ vec3 getSky() {
 
     float hfade = linStep(hbot, 0.3, 0.8);
         hfade   = pow6(hfade);
+        hfade   = mix(hfade * 0.75, 1.0, pow3(linStep(saturate(dot(nfrag, uvec) * 0.5 + 0.5), 0.45, 0.51)));
 
     float hgrad = 1.0-max(hbot, htop);
 
@@ -65,7 +66,7 @@ vec3 getSky() {
         shglow  = pow3(shglow)*(hfade+horizon)*finv(timeMoon)*finv(daytime.y*0.8);
 
     vec3 sky    = skycol * 0.8;
-        sky     = mix(sky, fogcol, hfade*0.75);
+        sky     = mix(sky, fogcol, hfade);
         sky     = mix(sky, fogcol, horizon*0.8);
         sky    *= pow3(1.0-saturate(shglow));
         sky    += suncol*shglow*6.0;

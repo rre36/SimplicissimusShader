@@ -52,6 +52,8 @@ vec3 getFog(vec3 color, vec3 scenepos, vec3 viewpos){
 	vec3 nfrag  = -normalize(viewpos);
 	vec3 sgvec  = normalize(sunvecView+nfrag);
 
+    float upAlpha = exp(-max(normalize(scenepos).y, 0.0) * 2.71);
+
 	float sgrad = 1.0-dot(sgvec, nfrag);
 	float sglow = linStep(sgrad, 0.1, 0.99);
         sglow   = pow4(sglow);
@@ -61,7 +63,7 @@ vec3 getFog(vec3 color, vec3 scenepos, vec3 viewpos){
 		dist 	= max((dist-fogStart)*1.25, 0.0);
 	float alpha = 1.0-exp2(-dist);
 
-	color 	= mix(color, fogcol*finv(sglow)+sunlightColor*sglow*5.0, saturate(pow2(alpha))*fogIntensity);
+	color 	= mix(color, fogcol*finv(sglow)+sunlightColor*sglow*5.0, saturate(pow2(alpha))*fogIntensity * upAlpha);
 
 	return color;
 }
