@@ -1,6 +1,6 @@
 #version 120
 /*
-Copyright (C) 2019 RRe36
+Copyright (C) 2022 RRe36
 
 All Rights Reserved unless otherwise explicitly stated.
 
@@ -38,9 +38,9 @@ varying vec2 coord;
 vec3 getFog(vec3 color, vec3 scenepos){
 	float dist 	= length(scenepos)/far;
 		dist 	= max((dist-fogStart)*1.25, 0.0);
-	float alpha = 1.0-exp2(-dist);
+	float alpha = 1.0-exp2(-dist * 8);
 
-	color 	= mix(color, vec3(1.0, 0.14, 0.06)*0.3, saturate(pow2(alpha))*fogIntensity);
+	color 	= mix(color, pow(fogColor, vec3(2.2)) * 0.66, saturate(pow2(alpha))*fogIntensity);
 
 	return color;
 }

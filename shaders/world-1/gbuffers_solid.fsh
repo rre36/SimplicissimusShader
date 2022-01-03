@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2019 RRe36
+Copyright (C) 2022 RRe36
 
 All Rights Reserved unless otherwise explicitly stated.
 
@@ -40,9 +40,9 @@ void main() {
 
 		scenecol.rgb = pow(scenecol.rgb, vec3(2.2));
 
-	vec3 lmapcol 	= texture2D(lightmap, vec2(lmap.x, 0.0)).rgb;
+	vec3 lmapcol 	= texture2D(lightmap, vec2(clamp(lmap.x, 0.5 / 16.0, 15.5 / 16.0), 0.0)).rgb;
 		lmapcol 	= pow(lmapcol, vec3(2.2)) * vec3(1.2, 0.8, 0.6);
-	vec3 lmaps 		= texture2D(lightmap, vec2(0.0, lmap.y)).rgb;
+	vec3 lmaps 		= texture2D(lightmap, vec2(0.0, clamp(lmap.y, 0.5 / 16.0, 15.5 / 16.0))).rgb;
 		lmaps 		= pow(lmapcol, vec3(2.2));
 
 	vec3 lighting 	= lmaps;

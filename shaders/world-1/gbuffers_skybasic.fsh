@@ -1,6 +1,6 @@
 #version 120
 /*
-Copyright (C) 2019 RRe36
+Copyright (C) 2022 RRe36
 
 All Rights Reserved unless otherwise explicitly stated.
 
@@ -17,8 +17,10 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 varying vec4 tint;
 
+uniform vec3 skyColor;
+
 void main() {
-    vec4 scenecol       = vec4(vec3(1.0, 0.14, 0.06) * 0.3, 1.0);
+    vec4 scenecol       = vec4(pow(skyColor, vec3(2.2)) * 0.66, 1.0);
 
 	scenecol.rgb 	= compressHDR(scenecol.rgb);
 

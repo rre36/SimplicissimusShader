@@ -11,24 +11,14 @@ These can be found inside the included license-file or here: https://rre36.githu
 Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
 */
 
-
 #include "/lib/math.glsl"
+#include "/lib/common.glsl"
+#include "/settings.glsl"
 
-varying vec4 tint;
-
-vec4 position;
-
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferModelViewInverse;
-
-void repackPos() {
-    position = gl_ProjectionMatrix * (gbufferModelView * position);
-}
+uniform vec3 fogColor;
 
 void main() {
-	position 	= (gl_ModelViewMatrix*gl_Vertex);
-    position 	= gbufferModelViewInverse*position;
-	repackPos();
-	gl_Position = position;
-	tint = gl_Color;
+
+    /*DRAWBUFFERS:0*/
+    gl_FragData[0]  = vec4(compressHDR(pow(fogColor, vec3(2.2)) * 0.66), 1.0);
 }

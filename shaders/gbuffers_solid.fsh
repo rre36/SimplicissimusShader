@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2019 RRe36
+Copyright (C) 2022 RRe36
 
 All Rights Reserved unless otherwise explicitly stated.
 
@@ -258,7 +258,7 @@ void main() {
 
 	shadow 		= min(shadow, diffuse);
 
-	vec3 lmapcol 	= texture2D(lightmap, vec2(lmap.x, 0.0)).rgb;
+	vec3 lmapcol 	= texture2D(lightmap, vec2(clamp(lmap.x, 0.5 / 16.0, 15.5 / 16.0), 0.0)).rgb;
 		lmapcol 	= pow(lmapcol, vec3(2.2));
 
     vec3 sunlight   = sunlightColor*shadow*shadowcol*finv(timeLightTransition);

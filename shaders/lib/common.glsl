@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2019 RRe36
+Copyright (C) 2022 RRe36
 
 All Rights Reserved unless otherwise explicitly stated.
 
