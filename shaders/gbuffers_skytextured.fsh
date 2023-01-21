@@ -24,8 +24,8 @@ varying vec4 texcoord;
 
 void main() {
     vec4 scenecol       = texture2D(texture, texcoord.st) * color;
-        scenecol.rgb    = pow(scenecol.rgb, vec3(2.2));
-        scenecol.rgb    = applyFog(scenecol.rgb)*3.0;
+        scenecol.rgb    = pow(scenecol.rgb, vec3(2.2)) * 3.0;
+        //scenecol.rgb    = applyFog(scenecol.rgb)*3.0;
 
     scenecol.rgb 	= compressHDR(scenecol.rgb);
 

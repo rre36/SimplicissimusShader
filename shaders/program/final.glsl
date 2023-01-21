@@ -160,6 +160,46 @@ vec3 vignette(vec3 color) {
     return color * fade;
 }
 
+const mat3 XYZ_sRGB = mat3(
+	 3.2409699419, -1.5373831776, -0.4986107603,
+	-0.9692436363,  1.8759675015,  0.0415550574,
+	 0.0556300797, -0.2039769589,  1.0569715142
+);
+const mat3 sRGB_XYZ = mat3(
+	0.4124564, 0.3575761, 0.1804375,
+	0.2126729, 0.7151522, 0.0721750,
+	0.0193339, 0.1191920, 0.9503041
+);
+
+const mat3 XYZ_P3D65 = mat3(
+	 2.4933963, -0.9313459, -0.4026945,
+	-0.8294868,  1.7626597,  0.0236246,
+	 0.0358507, -0.0761827,  0.9570140
+);
+const mat3 P3D65_XYZ = mat3(
+	0.4865906, 0.2656683, 0.1981905,
+	0.2289838, 0.6917402, 0.0792762,
+	0.0000000, 0.0451135, 1.0438031
+);
+
+const mat3 sRGB_P3D65 = (sRGB_XYZ) * XYZ_P3D65;
+
+#define VIEWPORT_GAMUT 0    //[0 1 2] 0: sRGB, 1: P3D65, 2: Display P3
+
+vec3 OutputGamutTransform(vec3 Linear) {
+#if VIEWPORT_GAMUT == 1
+    vec3 P3 = Linear * sRGB_P3D65;
+    //return LinearToSRGB(P3);
+    return pow(P3, vec3(1.0 / 2.6));
+#elif VIEWPORT_GAMUT == 2
+    vec3 P3 = Linear * sRGB_P3D65;
+    //return LinearToSRGB(P3);
+    return pow(P3, vec3(1.0 / 2.2));
+#else
+    return pow(Linear, vec3(1.0 / 2.2));
+#endif
+}
+
 void main() {
 	vec3 scenecol 		= texture2D(colortex0, coord).rgb;
 		scenecol 		= decompressHDR(scenecol.rgb);
@@ -182,7 +222,7 @@ void main() {
     #endif
 
 		scenecol 		= reinhardTonemap(scenecol);
-		scenecol 		= pow(scenecol, vec3(1.0/2.2));	//convert color back to display gamma
+		scenecol 		= OutputGamutTransform(scenecol);
 
     #ifdef do_colorgrading
         scenecol        = brightness_contrast(scenecol);
