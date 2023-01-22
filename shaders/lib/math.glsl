@@ -12,6 +12,9 @@ Violating these terms may be penalized with actions according to the Digital Mil
 
 
 const float pi = 3.14159265358979323846;
+const float sqrt2   = sqrt(2.0);
+const float sqrt3   = sqrt(3.0);
+const float euler   = 2.718281828459045;                    // euler's number
 
 /* ------ matrix macros ------ */
     #define diagonal2(mat) vec2((mat)[0].x, (mat)[1].y)

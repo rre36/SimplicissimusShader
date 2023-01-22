@@ -71,7 +71,7 @@ uniform sampler2DShadow shadowtex0;
 uniform sampler2DShadow shadowtex1;
 uniform sampler2DShadow shadowcolor0;
 
-uniform float far;
+uniform float far, screenBrightness;
 
 uniform vec3 lightvec;
 
@@ -260,10 +260,11 @@ void main() {
 
 	vec3 lmapcol 	= texture2D(lightmap, vec2(clamp(lmap.x, 0.5 / 16.0, 15.5 / 16.0), 0.0)).rgb;
 		lmapcol 	= pow(lmapcol, vec3(2.2));
+        lmapcol     = saturate(normalize(lmapcol)) * pow5(lmap.x);
 
     vec3 sunlight   = sunlightColor*shadow*shadowcol*finv(timeLightTransition);
 
-	vec3 lighting 	= sunlight + skylightColor*pow5(lmap.y);
+	vec3 lighting 	= sunlight + max(skylightColor*pow5(lmap.y), vec3(0.5, 0.8, 1.0) * mix(0.003, 0.025, screenBrightness));
 		lighting 	= max(lighting, lmapcol*torchlightColor);
 
 	scenecol.rgb   *= lighting;

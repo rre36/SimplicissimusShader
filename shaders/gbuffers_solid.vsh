@@ -107,13 +107,14 @@ attribute vec4 mc_Entity;
 #endif
 #endif
 
-vec3 getShadowCoordinate(vec3 vpos, float bias) {
+vec3 getShadowCoordinate(vec3 vpos, float bias, vec3 vertexNormal) {
 	vec3 position 	= vpos;
 		position 	= transMAD(gbufferModelViewInverse, position);
-		position   += vec3(bias)*lightvec;
+		//position   += vec3(bias)*lightvec * sqrt(length(position) / 128.0);
+        position   += vertexNormal * min(0.1 + length(position) / 200.0, 0.5) * (2.0 - max(dot(vertexNormal, lightvec), 0.0)) * log2(max(128.0 - shadowMapResolution * 0.2, euler)) / euler;
 		position 	= transMAD(shadowModelView, position);
 		position 	= projMAD3(shadowProjection, position);
-		position.z -= 0.0007;
+		//position.z -= 0.0007;
 
 		position.z *= 0.2;
 		warpShadowmap(position.xy);
@@ -129,6 +130,9 @@ void main() {
 	tint.rgb = pow(tint.rgb, vec3(2.2));
 	coord 	= (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;	
 	lmap 	= (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
+
+    lmap.x = linStep(lmap.x, rcp(24.0), 1.0);
+    lmap.y = linStep(lmap.y, rcp(16.0), 1.0);
 	
 	vec4 position 	= gl_Vertex;
 		position 	= transMAD(gl_ModelViewMatrix, position.xyz).xyzz;
@@ -185,7 +189,7 @@ void main() {
 
 	svec 	= normalize(sunPosition);
 
-	spos 	= getShadowCoordinate(vpos, 0.08 * (2048.0 / shadowMapResolution));
+	spos 	= getShadowCoordinate(vpos, 0.08 * (2048.0 / shadowMapResolution), normal);
 
 	get_daytime();
 
