@@ -258,9 +258,9 @@ void main() {
 
 	shadow 		= min(shadow, diffuse);
 
-	vec3 lmapcol 	= texture2D(lightmap, vec2(clamp(lmap.x, 0.5 / 16.0, 15.5 / 16.0), 0.0)).rgb;
+	vec3 lmapcol 	= texture2D(lightmap, vec2(clamp(lmap.x, 0.5 / 16.0, 15.5 / 16.0), 0.5 / 16.0)).rgb;
 		lmapcol 	= pow(lmapcol, vec3(2.2));
-        lmapcol     = saturate(normalize(lmapcol)) * pow5(lmap.x);
+        //lmapcol     = saturate(normalize(lmapcol)) * pow5(lmap.x);
 
     vec3 sunlight   = sunlightColor*shadow*shadowcol*finv(timeLightTransition);
 
