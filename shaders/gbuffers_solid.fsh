@@ -69,7 +69,7 @@ uniform mat4 gbufferModelViewInverse;
 const bool shadowHardwareFiltering = true;
 uniform sampler2DShadow shadowtex0;
 uniform sampler2DShadow shadowtex1;
-uniform sampler2DShadow shadowcolor0;
+uniform sampler2D shadowcolor0;
 
 uniform float far, screenBrightness;
 
@@ -251,8 +251,8 @@ void main() {
         float s0 = getShadow(shadowtex0, spos);
 
         if (length(shadow-s0)>0.05) {
-            vec4 s  = shadow2D(shadowcolor0, spos);
-            shadowcol = mix(vec3(1.0), pow(s.rgb, vec3(2.2)), s.a);
+            vec4 s  = texture2D(shadowcolor0, spos.xy);
+            shadowcol = mix(vec3(1.0), pow(s.rgb, vec3(2.2)), (s.a));
         }
 	}
 
