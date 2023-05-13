@@ -22,10 +22,12 @@ varying vec3 sunlightColor;
 varying vec3 skylightColor;
 varying vec3 torchlightColor;
 varying vec3 fogcol;
+varying vec3 skycol;
 
 uniform float rainStrength;
 
 uniform vec3 fogColor;
+uniform vec3 skyColor;
 
 uniform vec4 daytime;
 
@@ -37,11 +39,14 @@ void main() {
 
    	get_daytime();
 
+	skycol 		= pow(skyColor, vec3(2.2));
+	skycol 	   *= vec3(0.9, 0.85, 1.0);
+
 	//colors
-	vec3 sunlightSunrise 	= vec3(1.0, 0.33, 0.03);
+	vec3 sunlightSunrise 	= vec3(1.0, 0.13, 0.03);
 	vec3 sunlightNoon 		= vec3(1.0, 1.0, 1.0);
-	vec3 sunlightSunset 	= vec3(1.0, 0.3, 0.02);
-	vec3 sunlightNight 		= vec3(0.3, 0.4, 1.0)*0.15;
+	vec3 sunlightSunset 	= vec3(1.0, 0.1, 0.02);
+	vec3 sunlightNight 		= vec3(1.0, 0.05, 0.01)*0.2;
 
     sunlightColor = daytime.x*sunlightSunrise + daytime.y*sunlightNoon + daytime.z*sunlightSunset + daytime.w*sunlightNight;
     sunlightColor = colorSaturation(sunlightColor * (1.0 - rainStrength * 0.5), 1.0 - rainStrength * 0.9);

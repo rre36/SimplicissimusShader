@@ -41,7 +41,7 @@ void main() {
 		scenecol.rgb = pow(scenecol.rgb, vec3(2.2));
 
 	vec3 lmapcol 	= texture2D(lightmap, vec2(clamp(lmap.x, 0.5 / 16.0, 15.5 / 16.0), 0.0)).rgb;
-		lmapcol 	= pow(lmapcol, vec3(2.2)) * vec3(1.2, 0.8, 0.6);
+		lmapcol 	= pow(lmapcol, vec3(2.2)) * vec3(1.2, 0.8, 0.6) * 0.5;
 	vec3 lmaps 		= texture2D(lightmap, vec2(0.0, clamp(lmap.y, 0.5 / 16.0, 15.5 / 16.0))).rgb;
 		lmaps 		= pow(lmapcol, vec3(2.2));
 

@@ -22,6 +22,8 @@ uniform sampler2D colortex0;    //scene color
 
 uniform sampler2D depthtex0;
 
+uniform int isEyeInWater;
+
 uniform float far;
 
 uniform vec2 taaOffset;
@@ -37,13 +39,24 @@ varying vec2 coord;
 
 vec3 getFog(vec3 color, vec3 scenepos){
 	float dist 	= length(scenepos)/far;
-		dist 	= max((dist-fogStart)*1.25, 0.0);
+		dist 	= max((dist-fogStart * 0.5)*1.25, 0.0);
 	float alpha = 1.0-exp2(-dist * 8);
+        alpha = mix(alpha, 1.0, pow2(linStep(dist, 0.25, 1.0)));
 
 	color 	= mix(color, pow(fogColor, vec3(2.2)) * 0.66, saturate(pow2(alpha))*fogIntensity);
 
 	return color;
 }
+
+vec3 getLavaFog(vec3 color, vec3 scenepos){
+	float dist 	= length(scenepos);
+	float alpha = 1.0-exp(-dist);
+
+	color 	= mix(color, vec3(1.0, 0.15, 0.01), saturate(alpha));
+
+	return color;
+}
+
 
 void main() {
 	vec3 scenecol 		= texture2D(colortex0, coord).rgb;
@@ -51,11 +64,14 @@ void main() {
 
     float scenedepth0   = texture2D(depthtex0, coord).x;
 
+    vec3 viewpos0       = screenSpaceToViewSpace(vec3(coord, scenedepth0), gbufferProjectionInverse);
+    vec3 scenepos0      = viewSpaceToSceneSpace(viewpos0, gbufferModelViewInverse);
+
     if (scenedepth0 != 1.0) {
-        vec3 viewpos0       = screenSpaceToViewSpace(vec3(coord, scenedepth0), gbufferProjectionInverse);
-        vec3 scenepos0      = viewSpaceToSceneSpace(viewpos0, gbufferModelViewInverse);
         scenecol.rgb    = getFog(scenecol.rgb, scenepos0);
     }
+
+    if (isEyeInWater == 2) scenecol.rgb = getLavaFog(scenecol.rgb, scenepos0);
 
         scenecol 	    = compressHDR(scenecol.rgb);
 
