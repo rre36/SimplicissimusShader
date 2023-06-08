@@ -172,17 +172,88 @@ const mat3 sRGB_XYZ = mat3(
 );
 
 const mat3 XYZ_P3D65 = mat3(
-	 2.4933963, -0.9313459, -0.4026945,
-	-0.8294868,  1.7626597,  0.0236246,
-	 0.0358507, -0.0761827,  0.9570140
+    2.4933963, -0.9313459, -0.4026945,
+    -0.8294868,  1.7626597,  0.0236246,
+    0.0358507, -0.0761827,  0.9570140
 );
-const mat3 P3D65_XYZ = mat3(
-	0.4865906, 0.2656683, 0.1981905,
-	0.2289838, 0.6917402, 0.0792762,
-	0.0000000, 0.0451135, 1.0438031
+const mat3 XYZ_REC2020 = mat3(
+	 1.7166511880, -0.3556707838, -0.2533662814,
+	-0.6666843518,  1.6164812366,  0.0157685458,
+	 0.0176398574, -0.0427706133,  0.9421031212
+);
+// https://en.wikipedia.org/wiki/Adobe_RGB_color_space
+const mat3 XYZ_AdobeRGB = mat3(
+      2.04158790381075,  -0.56500697427886,  -0.34473135077833,
+     -0.96924363628088,   1.87596750150772, 0.0415550574071756,
+    0.0134442806320311, -0.118362392231018,   1.01517499439121
 );
 
-const mat3 sRGB_P3D65 = (sRGB_XYZ) * XYZ_P3D65;
+// Bradford chromatic adaptation from standard D65 to DCI Cinema White
+const mat3 D65_DCI = mat3(
+    1.02449672775258,     0.0151635410224164, 0.0196885223342068,
+    0.0256121933371582,   0.972586305624413,  0.00471635229242733,
+    0.00638423065008769, -0.0122680827367302, 1.14794244517368
+);
+
+const mat3 sRGB_to_P3DCI = ((sRGB_XYZ) * XYZ_P3D65) * D65_DCI;
+const mat3 sRGB_to_P3D65 = sRGB_XYZ * XYZ_P3D65;
+const mat3 sRGB_to_REC2020 = sRGB_XYZ * XYZ_REC2020;
+const mat3 sRGB_to_AdobeRGB = sRGB_XYZ * XYZ_AdobeRGB;
+
+#if (defined COLOR_SPACE_SRGB || defined COLOR_SPACE_DCI_P3 || defined COLOR_SPACE_DISPLAY_P3 || defined COLOR_SPACE_REC2020 || defined COLOR_SPACE_ADOBE_RGB)
+
+uniform int currentColorSpace;
+
+// https://en.wikipedia.org/wiki/Rec._709#Transfer_characteristics
+vec3 EOTF_Curve(vec3 LinearCV, const float LinearFactor, const float Exponent, const float Alpha, const float Beta) {
+    return mix(LinearCV * LinearFactor, clamp(Alpha * pow(LinearCV, vec3(Exponent)) - (Alpha - 1.0), 0.0, 1.0), step(Beta, LinearCV));
+}
+
+// https://en.wikipedia.org/wiki/SRGB#Transfer_function_(%22gamma%22)
+vec3 EOTF_IEC61966(vec3 LinearCV) {
+    return EOTF_Curve(LinearCV, 12.92, 1.0 / 2.4, 1.055, 0.0031308);;
+    //return mix(LinearCV * 12.92, clamp(pow(LinearCV, vec3(1.0/2.4)) * 1.055 - 0.055, 0.0, 1.0), step(0.0031308, LinearCV));
+}
+// https://en.wikipedia.org/wiki/Rec._709#Transfer_characteristics
+vec3 EOTF_BT709(vec3 LinearCV) {
+    return EOTF_Curve(LinearCV, 4.5, 0.45, 1.099, 0.018);
+    //return mix(LinearCV * 4.5, clamp(pow(LinearCV, vec3(0.45)) * 1.099 - 0.099, 0.0, 1.0), step(0.018, LinearCV));
+}
+// https://en.wikipedia.org/wiki/DCI-P3
+vec3 EOTF_P3DCI(vec3 LinearCV) {
+    return pow(LinearCV, vec3(1.0 / 2.6));
+}
+// https://en.wikipedia.org/wiki/Adobe_RGB_color_space
+vec3 EOTF_Adobe(vec3 LinearCV) {
+    return pow(LinearCV, vec3(1.0 / 2.2));
+}
+
+vec3 OutputGamutTransform(vec3 LinearCV) {
+    switch(currentColorSpace) {
+        case COLOR_SPACE_SRGB:
+            return EOTF_IEC61966(LinearCV);
+
+        case COLOR_SPACE_DCI_P3:
+            LinearCV = LinearCV * sRGB_to_P3DCI;
+            return EOTF_P3DCI(LinearCV);
+
+        case COLOR_SPACE_DISPLAY_P3:
+            LinearCV = LinearCV * sRGB_to_P3D65;
+            return EOTF_IEC61966(LinearCV);
+
+        case COLOR_SPACE_REC2020:
+            LinearCV = LinearCV * sRGB_to_REC2020;
+            return EOTF_BT709(LinearCV);
+
+        case COLOR_SPACE_ADOBE_RGB:
+            LinearCV = LinearCV * sRGB_to_AdobeRGB;
+            return EOTF_Adobe(LinearCV);
+    }
+    // Fall back to sRGB if unknown
+    return EOTF_IEC61966(LinearCV);
+}
+
+#else
 
 #define VIEWPORT_GAMUT 0    //[0 1 2] 0: sRGB, 1: P3D65, 2: Display P3
 
@@ -193,12 +264,14 @@ vec3 OutputGamutTransform(vec3 Linear) {
     return pow(P3, vec3(1.0 / 2.6));
 #elif VIEWPORT_GAMUT == 2
     vec3 P3 = Linear * sRGB_P3D65;
-    //return LinearToSRGB(P3);
-    return pow(P3, vec3(1.0 / 2.2));
+    return LinearToSRGB(P3);
+    //return pow(P3, vec3(1.0 / 2.2));
 #else
-    return pow(Linear, vec3(1.0 / 2.2));
+    return LinearToSRGB(Linear);
 #endif
 }
+
+#endif
 
 void main() {
 	vec3 scenecol 		= texture2D(colortex0, coord).rgb;

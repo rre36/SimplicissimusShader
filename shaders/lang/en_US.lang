@@ -1,5 +1,5 @@
 option.info=Simplicissimus by RRe36
-value.info.0=v1.3
+value.info.0=v1.3a
 
 option.shadowMapResolution=Shadowmap Resolution
 option.hq_shadows=Soft Shadows
@@ -24,7 +24,7 @@ option.promoOutline_enabled.comment=From CaptTatsu's BSL Shaders with permission
 option.bloom=Bloom
 option.bloomIntensity=Intensity
 option.VIEWPORT_GAMUT=Display Gamut
-option.VIEWPORT_GAMUT.comment=This setting allows you to select the colour space that matches your display to ensure the intended look. Correct gamma response for the selected colour space is assumed.
+option.VIEWPORT_GAMUT.comment=This setting allows you to select the colour space that matches your display to ensure the intended look. Correct gamma response for the selected colour space is assumed. This setting is ignored on Iris in favour of its built in display gamut management. Please set this value in the Video settings there.
 value.VIEWPORT_GAMUT.0=sRGB
 value.VIEWPORT_GAMUT.1=DCI-P3 (D65)
 value.VIEWPORT_GAMUT.2=Display P3
