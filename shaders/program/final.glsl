@@ -255,15 +255,21 @@ vec3 OutputGamutTransform(vec3 LinearCV) {
 
 #else
 
+#define clamp16F(x) clamp(x, 0.0, 65535.0)
+
+vec3 LinearToSRGB(vec3 x){
+    return mix(x * 12.92, clamp16F(pow(x, vec3(1./2.4)) * 1.055 - 0.055), step(0.0031308, x));
+}
+
 #define VIEWPORT_GAMUT 0    //[0 1 2] 0: sRGB, 1: P3D65, 2: Display P3
 
 vec3 OutputGamutTransform(vec3 Linear) {
 #if VIEWPORT_GAMUT == 1
-    vec3 P3 = Linear * sRGB_P3D65;
+    vec3 P3 = Linear * sRGB_to_P3D65;
     //return LinearToSRGB(P3);
     return pow(P3, vec3(1.0 / 2.6));
 #elif VIEWPORT_GAMUT == 2
-    vec3 P3 = Linear * sRGB_P3D65;
+    vec3 P3 = Linear * sRGB_to_P3D65;
     return LinearToSRGB(P3);
     //return pow(P3, vec3(1.0 / 2.2));
 #else
