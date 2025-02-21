@@ -289,12 +289,15 @@ void main() {
 
 		vec3 mat_data = decode_lab(spectex, is_metal);
 
-		float ggx 	= get_specGGX(scenenormal, normalize(mat3(gbufferModelViewInverse) * vpos), mat_data.xy);
+        vec3 viewVector = normalize(mat3(gbufferModelViewInverse) * vpos);
+
+		float ggx 	= get_specGGX(scenenormal, viewVector, mat_data.xy);
 
 		scenecol.rgb *= t_ao;
 
 		if (is_metal) {
-			scenecol.rgb *= albedo * 0.5 + 0.5;
+			scenecol.rgb *= normalize(albedo * 0.5 + 0.5);
+            scenecol.rgb *= mix(pow(saturate(dot(scenenormal, -viewVector)), mix(4.0, 1.0, mat_data.x)), 1.0, 0.12);
 			scenecol.rgb += ggx * albedo * sunlight;
 		} else {
 			scenecol.rgb += ggx * sunlight;
