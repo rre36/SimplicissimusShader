@@ -19,6 +19,7 @@ Violating these terms may be penalized with actions according to the Digital Mil
 //#define hq_shadows
 
 #ifdef g_entities
+uniform int entityId;
     //#define noEntityLab
 #endif
 
@@ -207,9 +208,11 @@ void main() {
 	vec3 scenenormal = normal;
 
 	#ifndef translucency
-    #ifndef g_entities
-		if(scenecol.a < 0.1) discard;
-    #endif
+        #ifdef g_entities
+        if (scenecol.a<0.1 && entityId != 1001) discard;
+        #else
+        if (scenecol.a<0.1) discard;
+        #endif
 	#endif
 
 		scenecol.rgb = pow(scenecol.rgb, vec3(2.3)) * tint.rgb;
