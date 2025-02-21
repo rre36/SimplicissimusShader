@@ -146,9 +146,9 @@ vec3 getShadowCoordinate() {
 	vec3 decode_lab_nrm(vec3 ntex, inout float ao) {
         if (floor(ntex * 256.0) == vec3(0.0)) return normal;
 
-		ntex    = ntex * 2.0 - (254.0 * rcp(255.0));
+        if(any(greaterThan(ntex, vec3(0.003)))) ao = sqrt(ntex.z);   //thanks for this fix in ymir niemand
 
-        if(any(greaterThan(ntex, vec3(0.003)))) ao *= ntex.z;   //thanks for this fix in ymir niemand
+		ntex.xy    = ntex.xy * 2.0 - (254.0 * rcp(255.0));
 
         ntex.z  = sqrt(saturate(1.0 - dot(ntex.xy, ntex.xy)));
 
@@ -180,7 +180,7 @@ vec3 decode_lab(vec4 unpacked_tex, out bool is_metal) {
 
     mat_data.z  = unpacked_tex.w < 254.5 ? linStep(unpacked_tex.w, 0.0, 254.0) : 0.0; //emission
 
-    is_metal    = (unpacked_tex.y * 255.0) > 229.5;
+    is_metal    = (unpacked_tex.y * 255.0) >= 230.0;
 
 	return mat_data;
 }
@@ -264,10 +264,14 @@ void main() {
 
     vec3 sunlight   = sunlightColor*shadow*shadowcol*finv(timeLightTransition);
 
-	vec3 lighting 	= sunlight + max(skylightColor*pow5(lmap.y), vec3(0.5, 0.8, 1.0) * mix(0.003, 0.025, screenBrightness));
+	vec3 lighting 	= max(skylightColor*pow5(lmap.y), vec3(0.5, 0.8, 1.0) * mix(0.003, 0.025, screenBrightness));
 		lighting 	= max(lighting, lmapcol*torchlightColor);
 
-	scenecol.rgb   *= lighting;
+	#if (defined labpbr_enabled && !defined noEntityLab)
+        lighting *= saturate(t_ao * 0.8 + 0.2);
+    #endif
+
+	scenecol.rgb   *= lighting + sunlight;
 
     #ifndef translucency
     float ao        = pow2(tint.a);
@@ -292,8 +296,6 @@ void main() {
         vec3 viewVector = normalize(mat3(gbufferModelViewInverse) * vpos);
 
 		float ggx 	= get_specGGX(scenenormal, viewVector, mat_data.xy);
-
-		scenecol.rgb *= t_ao;
 
 		if (is_metal) {
 			scenecol.rgb *= normalize(albedo * 0.5 + 0.5);
