@@ -58,6 +58,20 @@ uniform mat4 shadowModelViewInverse;
 	}
 #endif
 
+#define WIND_NEW_TOPVERT
+
+attribute vec3 at_midBlock;
+
+bool getFoliageTopVertex(float worldY) {
+    #ifdef WIND_NEW_TOPVERT
+    float bottomY = (worldY + (at_midBlock.y / 64.0)) - 0.45;
+
+    return worldY > bottomY;
+    #else
+    return (gl_MultiTexCoord0.t < mc_midTexCoord.t);
+    #endif
+}
+
 void main() {
     vec4 position   = gl_Vertex;
         position    = gl_ModelViewMatrix*position;
@@ -70,7 +84,7 @@ void main() {
 		if (windLod) {
 			position.xyz += cameraPosition.xyz;
 
-			bool top_vertex 	= gl_MultiTexCoord0.t < mc_midTexCoord.t;
+			bool top_vertex 	= getFoliageTopVertex(position.y);
 			if ((mc_Entity.x == 6.0 ||
 			mc_Entity.x == 31.0 ||
 			mc_Entity.x == 38.0 ||

@@ -105,6 +105,21 @@ attribute vec4 mc_Entity;
 		return w0+w1;
 	}
 #endif
+
+#define WIND_NEW_TOPVERT
+
+attribute vec3 at_midBlock;
+
+bool getFoliageTopVertex(float worldY) {
+    #ifdef WIND_NEW_TOPVERT
+    float bottomY = (worldY + (at_midBlock.y / 64.0)) - 0.45;
+
+    return worldY > bottomY;
+    #else
+    return (gl_MultiTexCoord0.t < mc_midTexCoord.t);
+    #endif
+}
+
 #endif
 
 vec3 getShadowCoordinate(vec3 vpos, float bias, vec3 vertexNormal) {
@@ -144,7 +159,7 @@ void main() {
 
 	#ifdef terrain
 		#ifdef wind_effects
-			bool top_vertex 	= gl_MultiTexCoord0.t < mc_midTexCoord.t;
+			bool top_vertex 	= getFoliageTopVertex(position.y);
 			if ((mc_Entity.x == 6.0 ||
 			mc_Entity.x == 31.0 ||
 			mc_Entity.x == 38.0 ||
