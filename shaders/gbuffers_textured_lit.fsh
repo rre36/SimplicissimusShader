@@ -11,7 +11,9 @@ These can be found inside the included license-file or here: https://rre36.githu
 Violating these terms may be penalized with actions according to the Digital Millennium Copyright Act (DMCA), the Information Society Directive and/or similar laws depending on your country.
 */
 
-
+#if MC_VERSION >= 11300
+    #define translucency
+#endif
 
 #define g_textured
 #define isParticle

@@ -281,6 +281,8 @@ void main() {
     #ifndef translucency
     float ao        = pow2(tint.a);
     scenecol.rgb   *= ao;
+    #else
+    scenecol.a * tint.a;
     #endif
 
     #ifdef labpbr_enabled
